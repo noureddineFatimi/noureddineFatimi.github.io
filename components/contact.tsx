@@ -1,8 +1,8 @@
 'use client'
 
 import { Mail, MapPin, Phone } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { useState } from 'react'
+import { Download } from 'lucide-react'
 
 export function Contact() {
   const [formData, setFormData] = useState({
@@ -118,12 +118,39 @@ export function Contact() {
             </div>
           </div>
 
-          {/* Right - Contact Form */}
-          <div className="bg-background border border-border rounded-xl p-8">
-           
+         {/* Right - Download CV */}
+<div className="flex items-center">
+  <div className="w-full bg-background border border-border rounded-xl p-8 space-y-6">
+    <div className="space-y-3">
+      <h3 className="text-2xl font-semibold text-foreground">
+        Download My CV
+      </h3>
 
-           
-                     </div>
+      <p className="text-foreground/60 leading-relaxed">
+        Looking for more details about my experience, technical skills, and
+        projects? Download my resume in PDF format.
+      </p>
+    </div>
+
+    <div className="rounded-lg border border-border bg-card p-5">
+      <p className="font-medium text-foreground">
+        Noureddine El Fatimi
+      </p>
+      <p className="text-sm text-foreground/60">
+        Software Engineer • AI & Backend Development
+      </p>
+    </div>
+
+   <a
+  href="CV_NOUREDDINE_ELFATIMI.pdf"
+  download
+  className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity"
+>
+  <Download className="w-5 h-5 mr-2" />
+  Download Resume
+</a>
+  </div>
+</div>
         </div>
       </div>
     </section>

@@ -1,6 +1,5 @@
 import { ArrowRight, GitBranch, LinkIcon, Mail } from 'lucide-react'
 import BlurText from "@/components/ui/blurMotion";
-import BlobCursor from '@/components/ui/blobCursor';
 
 export function Hero() {
   return (

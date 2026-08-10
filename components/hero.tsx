@@ -1,20 +1,30 @@
 import { ArrowRight, GitBranch, LinkIcon, Mail } from 'lucide-react'
+import BlurText from "@/components/ui/blurMotion";
+import BlobCursor from '@/components/ui/blobCursor';
 
 export function Hero() {
   return (
+
     <section id="about" className="relative py-24 sm:py-15 overflow-hidden">
+      
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
+          
           <div className="space-y-8">
             <div className="space-y-4">
               <div className="inline-block  ">
                 <p className="text-2xl font-medium text-accent " >Hy, I'm
                 </p>
               </div>
-              <h1 className="text-5xl sm:text-6xl font-bold text-foreground text-balance">
-                Noureddine El Fatimi
-              </h1>
+                <BlurText
+                  text="Noureddine El Fatimi"
+                  delay={200}
+                  animateBy="words"
+                  direction="top"
+                  className="text-5xl sm:text-6xl font-bold text-foreground text-balance"
+                />
               <p className="text-xl text-foreground/70">
                 Software Engineer & AI Specialist
               </p>

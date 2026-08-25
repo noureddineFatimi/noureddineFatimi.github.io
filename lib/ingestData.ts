@@ -15,30 +15,38 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function ingestToPinecone(chunks: Document[], provider: string) {
+export async function ingestToPinecone(chunks: Document[]) {
   console.log("🔌 Connexion à Pinecone...");
 
-  if (!["huggingFace", "openRouter"].includes(provider)) {
-    throw new Error("provider !parameter must be openRouter or huggingFace")
+  const embedding_model_provider = process.env.EMBEDDING_MODEL_PROVIDER!
+
+  if (!["HUGGINGFACE", "OPENROUTER"].includes(embedding_model_provider)) {
+    throw new Error("The EMBEDDING_MODEL_PROVIDER variable  must be OPENROUTER or HUGGINGFACE")
   }
 
   // Le "!" indique à TypeScript que nous sommes sûrs que la variable d'environnement existe
   const pc = new Pinecone({ apiKey: process.env.VECTOR_DATABASE_API_KEY!});
   const index = pc.index(process.env.VECTOR_DATABASE_INDEX_NAME!); //dimension: 1024
 
-  const embeddingParameters = {
-    baseUrl: provider === "huggingFace" ? process.env.HF_EMBEDDING_BASE_URL! : process.env.OR_EMBEDDING_BASE_URL!,
-    model: provider === "huggingFace" ? process.env.HF_EMBEDDING_MODEL! : process.env.OR_EMBEDDING_MODEL!,
-    openAIApiKey: provider === "huggingFace" ? process.env.HF_API_KEY! : process.env.OR_EMBEDDING_API_KEY!
-  }
+  const embeddingModelParameters = embedding_model_provider === "huggingFace" ? 
+    {
+      baseUrl: process.env.HF_EMBEDDING_BASE_URL!,
+      model: process.env.HF_EMBEDDING_MODEL,
+      openAIApiKey: process.env.HF_API_KEY!
+    } : 
+    {
+      baseUrl: process.env.OR_EMBEDDING_BASE_URL!,
+      model: process.env.OR_EMBEDDING_MODEL,
+      openAIApiKey: process.env.OR_EMBEDDING_API_KEY!
+    }
 
   console.log("🧠 Initialisation du modèle d'Embeddings OpenAI...");
   const embeddings = new OpenAIEmbeddings({
     configuration:{
-      baseURL: embeddingParameters.baseUrl!
+      baseURL: embeddingModelParameters.baseUrl!
     },
-    model: embeddingParameters.model!,
-    openAIApiKey: embeddingParameters.openAIApiKey!
+    model: embeddingModelParameters.model!,
+    openAIApiKey: embeddingModelParameters.openAIApiKey!
   });
 
   console.log("🚀 Génération des vecteurs et insertion dans Pinecone...");

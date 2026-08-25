@@ -12,7 +12,7 @@ async function main() {
     // Si tu veux vérifier les chunks avant d'ingérer, décommente la ligne suivante :
     // console.log(chunks); return;
 
-    await ingestToPinecone(chunks, "openRouter"); //huggingface ou openrouter
+    await ingestToPinecone(chunks); 
   } catch (error) {
     console.error("❌ Erreur critique lors de l'exécution :", error);
   }

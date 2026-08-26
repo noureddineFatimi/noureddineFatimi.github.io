@@ -5,14 +5,33 @@ import { createRetrieverTool } from "@langchain/classic/tools/retriever";
 
 export async function getRetrieverTool() {
   const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
-  const index = pc.index(process.env.PINECONE_INDEX_NAME!);
+  const index = pc.index({name: process.env.PINECONE_INDEX_NAME!});
 
-  // ⚠️ Remplace ceci par la configuration exacte que tu as utilisée pour ton ingestion !
-  const embeddings = new OpenAIEmbeddings({
-    modelName: "nom-de-ton-modele-embedding", // ex: si tu as utilisé un modèle HF compatible
-    configuration: {
-      baseURL: process.env.EMBEDDINGS_BASE_URL, // ex: URL HuggingFace ou autre
+  const embedding_model_provider = process.env.EMBEDDING_MODEL_PROVIDER!
+
+  if (!["HUGGINGFACE", "OPENROUTER"].includes(embedding_model_provider)) {
+    throw new Error("The EMBEDDING_MODEL_PROVIDER variable  must be OPENROUTER or HUGGINGFACE")
+  }
+
+   const embeddingModelParameters = embedding_model_provider === "huggingFace" ? 
+    {
+      baseUrl: process.env.HF_EMBEDDING_BASE_URL!,
+      model: process.env.HF_EMBEDDING_MODEL,
+      openAIApiKey: process.env.HF_API_KEY!
+    } : 
+    {
+      baseUrl: process.env.OR_EMBEDDING_BASE_URL!,
+      model: process.env.OR_EMBEDDING_MODEL,
+      openAIApiKey: process.env.OR_EMBEDDING_API_KEY!
     }
+
+  console.log("🧠 Initialisation du modèle d'Embeddings OpenAI...");
+  const embeddings = new OpenAIEmbeddings({
+    configuration:{
+      baseURL: embeddingModelParameters.baseUrl!
+    },
+    model: embeddingModelParameters.model!,
+    openAIApiKey: embeddingModelParameters.openAIApiKey!
   });
 
   const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {

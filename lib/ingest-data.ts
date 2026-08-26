@@ -26,7 +26,7 @@ export async function ingestToPinecone(chunks: Document[]) {
 
   // Le "!" indique à TypeScript que nous sommes sûrs que la variable d'environnement existe
   const pc = new Pinecone({ apiKey: process.env.VECTOR_DATABASE_API_KEY!});
-  const index = pc.index(process.env.VECTOR_DATABASE_INDEX_NAME!); //dimension: 1024
+  const index = pc.index({name: process.env.VECTOR_DATABASE_INDEX_NAME!}); //dimension: 1024
 
   const embeddingModelParameters = embedding_model_provider === "huggingFace" ? 
     {

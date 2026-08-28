@@ -8,7 +8,8 @@ export type GithubAction =
   | "repo_info" 
   | "repo_commits" 
   | "repo_languages" 
-  | "file_content";
+  | "file_content"
+  | "repo_tree";
 
 // Définition des paramètres optionnels selon l'action
 export interface GithubResolverParams {
@@ -22,6 +23,7 @@ export interface GithubResolverParams {
 export function resolveGithubUrl(action: GithubAction, params?: GithubResolverParams): string {
   const baseUrl = "https://api.github.com";
   const owner = process.env.GITHUB_USERNAME;
+  const main_branch = process.env.MAIN_GITHUB_REPOSITORIES_BRANCH;
 
   // L'action list_repos peut utiliser le token global (/user/repos), 
   // mais pour cibler spécifiquement tes dépôts publics/privés, utiliser l'owner est plus robuste.
@@ -52,6 +54,11 @@ export function resolveGithubUrl(action: GithubAction, params?: GithubResolverPa
       if (!params?.repoName) throw new Error("Le paramètre 'repoName' est requis pour 'file_content'.");
       if (!params?.filePath) throw new Error("Le paramètre 'filePath' est requis pour 'file_content'.");
       return `${baseUrl}/repos/${owner}/${params.repoName}/contents/${params.filePath}`;
+
+    case "repo_tree":
+      if (!params?.repoName) throw new Error("Le paramètre 'repoName' est requis pour 'repo_tree'.");
+      // recursive=true permet de récupérer tous les sous-dossiers d'un coup
+      return `${baseUrl}/repos/${owner}/${params.repoName}/git/trees/${main_branch}?recursive=true`;
 
     default:
       // Sécurité TypeScript (cette ligne ne devrait jamais être atteinte si les types sont respectés)

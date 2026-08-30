@@ -1,12 +1,12 @@
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
-import { resolveGithubUrl } from "../githubUrlResolver";
-import { fetchFromGithub } from "../githubClient";
+import { resolveGithubUrl } from "../github/urlResolver";
+import { fetchFromGithub } from "../github/client";
 import { 
   extractRepoMetadata, 
   extractRepoCommits, 
   extractRepoLanguages 
-} from "../githubParsers";
+} from "../github/parsers";
 
 export const analyzeGithubRepoTool = new DynamicStructuredTool({
   name: "analyser_metadonnees_repo",

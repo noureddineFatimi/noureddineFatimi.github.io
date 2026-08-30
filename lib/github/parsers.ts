@@ -1,81 +1,9 @@
 import dotenv from "dotenv";
+import { FileContentResult, MinimalRepo, RepoCommit, RepoLanguages, RepoMetadata, RepoTree } from "./types";
 
 dotenv.config({ path: ".env.local" });
 
-// On définit l'interface de ce qu'on veut garder pour avoir l'autocomplétion
-export interface MinimalRepo {
-  id: number;
-  name: string;
-  full_name: string;
-  private: boolean;
-}
-
-// Typage pour les métadonnées générales du dépôt
-export interface RepoMetadata {
-  id: number;
-  name: string;
-  full_name: string;
-  private: boolean;
-  description: string | null;
-  fork: boolean;
-  html_url: string;
-  updated_at: string;
-  created_at: string;
-  pushed_at: string;
-  size: number;
-  homepage: string | null;
-  language: string | null;
-  visibility: string;
-  default_branch: string;
-  has_issues: boolean;
-}
-
-// Typage pour un Commit spécifique
-export interface RepoCommit {
-  sha: string;
-  url: string;
-  html_url: string;
-  commit: {
-    author: {
-      name: string;
-      email: string;
-      date: string;
-    };
-    message: string;
-  };
-  parents: Array<{
-    sha: string;
-    url: string;
-    html_url: string;
-  }>;
-}
-
-// Typage pour les langages (Un dictionnaire de chaînes vers des nombres)
-export type RepoLanguages = Record<string, number>;
-
-// Typage pour un élément de l'arborescence
-export interface RepoTreeItem {
-  path: string;
-  type: string; // 'blob' = fichier, 'tree' = dossier
-  size?: number; // size n'existe que pour les fichiers (blob), pas pour les dossiers
-}
-
-// Typage pour la réponse globale de l'arborescence
-export interface RepoTree {
-  sha: string;
-  url: string;
-  tree: RepoTreeItem[];
-}
-
 const MAX_FILE_LENGTH: number = Number(process.env.READING_GITHUB_FILE_MAX_FILE_LENGTH)
-
-export interface FileContentResult {
-  path: string;
-  content: string;
-  url: string;
-  html_url: string;
-  truncated: boolean; // Utile pour informer le LLM que le fichier a été coupé
-}
 
 /**
  * Prend la réponse brute de l'API GitHub et extrait uniquement les clés essentielles.
@@ -94,11 +22,11 @@ export function extractMinimalRepos(rawRepos: any): MinimalRepo[] | { error: str
   }
 
   // La fonction map() boucle sur le tableau et crée un nouveau tableau épuré
-  return rawRepos.map((repo: any) => ({
-    id: repo.id,
-    name: repo.name,
-    full_name: repo.full_name,
-    private: repo.private,
+  return rawRepos?.map((repo: any) => ({
+    id: repo?.id,
+    name: repo?.name,
+    full_name: repo?.full_name,
+    private: repo?.private,
   }));
 }
 
@@ -109,22 +37,22 @@ export function extractRepoMetadata(rawData: any): RepoMetadata | { error: strin
   if (rawData && rawData.error) return { error: rawData.error };
 
   return {
-    id: rawData.id,
-    name: rawData.name,
-    full_name: rawData.full_name,
-    private: rawData.private,
-    description: rawData.description,
-    fork: rawData.fork,
-    html_url: rawData.html_url,
-    updated_at: rawData.updated_at,
-    created_at: rawData.created_at,
-    pushed_at: rawData.pushed_at,
-    size: rawData.size,
-    homepage: rawData.homepage,
-    language: rawData.language,
-    visibility: rawData.visibility,
-    default_branch: rawData.default_branch,
-    has_issues: rawData.has_issues,
+    id: rawData?.id,
+    name: rawData?.name,
+    full_name: rawData?.full_name,
+    private: rawData?.private,
+    description: rawData?.description,
+    fork: rawData?.fork,
+    html_url: rawData?.html_url,
+    updated_at: rawData?.updated_at,
+    created_at: rawData?.created_at,
+    pushed_at: rawData?.pushed_at,
+    size: rawData?.size,
+    homepage: rawData?.homepage,
+    language: rawData?.language,
+    visibility: rawData?.visibility,
+    default_branch: rawData?.default_branch,
+    has_issues: rawData?.has_issues,
   };
 }
 
@@ -138,24 +66,24 @@ export function extractRepoCommits(rawData: any): RepoCommit[] | { error: string
     return { error: "La réponse de l'API pour les commits n'est pas un tableau valide." };
   }
 
-  return rawData.map((item: any) => ({
-    sha: item.sha,
-    url: item.url,
-    html_url: item.html_url,
+  return rawData?.map((item: any) => ({
+    sha: item?.sha,
+    url: item?.url,
+    html_url: item?.html_url,
     commit: {
       author: {
-        name: item.commit.author.name,
-        email: item.commit.author.email,
-        date: item.commit.author.date,
+        name: item?.commit?.author?.name,
+        email: item?.commit?.author?.email,
+        date: item?.commit?.author?.date,
       },
-      message: item.commit.message,
+      message: item?.commit?.message,
     },
     // On doit mapper le tableau parents car il contient souvent d'autres infos inutiles
-    parents: item.parents.map((parent: any) => ({
-      sha: parent.sha,
-      url: parent.url,
-      html_url: parent.html_url,
-    })),
+    parents: item?.parents?.map((parent: any) => ({
+      sha: parent?.sha,
+      url: parent?.url,
+      html_url: parent?.html_url,
+    })) || [],
   }));
 }
 
@@ -174,22 +102,10 @@ export function extractRepoLanguages(rawData: any): RepoLanguages | { error: str
   return rawData;
 }
 
-function testExtractMinimalRepos() {
-  // Cas de test avec une réponse valide de l'API GitHub
-  const rawRepos = [
-    { id: 1, name: "repo1", full_name: "user/repo1", private: false, extra: "data" },
-    { id: 2, name: "repo2", full_name: "user/repo2", private: true, extra: "data" },
-  ];
-  const result = extractMinimalRepos(rawRepos);
-  console.assert(Array.isArray(result), "Le résultat n'est pas un tableau.");
-  Array.isArray(result) ? console.assert(result.length === 2, "Le tableau ne contient pas le bon nombre d'éléments.") : console.log("Erreur : Résultat n'est pas un tableau de MinimalRepo.");
-  console.log("Test réussi pour extractMinimalRepos !");
-}
-
 export function decodeBase64Content(encodedContent: string): string {
   // 3. Décodage du Base64 (Spécifique à Node.js / Next.js backend)
   // On enlève les retours à la ligne (\n) que GitHub ajoute parfois dans sa chaîne base64
-  const cleanBase64 = encodedContent.replace(/\n/g, "");
+  const cleanBase64 = encodedContent?.replace(/\n/g, "");
   const decodedString = Buffer.from(cleanBase64, "base64").toString("utf-8");
 
   return decodedString
@@ -208,26 +124,26 @@ export function extractFileContent(rawData: any, requestedPath: string): FileCon
   }
 
   // GitHub utilise l'encodage "base64" pour les fichiers
-  if (rawData.encoding !== "base64" || typeof rawData.content !== "string") {
-    return { error: `Le format du fichier '${requestedPath}' n'est pas supporté (non-base64).` };
+  if (rawData?.encoding !== "base64" || typeof rawData?.content !== "string") {
+    return { error: `Le format du fichier '${requestedPath}' n'est pas supporté (non-base64) ou son contenu est null.` };
   }
 
   try {
-    const decodedString = decodeBase64Content(rawData.content)
+    const decodedString = rawData && rawData.content ? decodeBase64Content(rawData.content) : "";
 
     // 4. Troncature de sécurité (Protection du LLM)
     let finalContent = decodedString;
     let isTruncated = false;
 
-    if (decodedString.length > MAX_FILE_LENGTH) {
+    if (decodedString && decodedString.length > MAX_FILE_LENGTH) {
       finalContent = decodedString.substring(0, MAX_FILE_LENGTH) + "\n\n... [CONTENU TRONQUÉ CAR TROP LONG] ...";
       isTruncated = true;
     }
 
     return {
-      path: rawData.path || requestedPath,
-      url: rawData.url,
-      html_url: rawData.html_url,
+      path: rawData?.path || requestedPath,
+      url: rawData?.url,
+      html_url: rawData?.html_url,
       content: finalContent,
       truncated: isTruncated,
     };
@@ -244,20 +160,18 @@ export function extractRepoTree(rawData: any): RepoTree | { error: string } {
   // Gestion d'erreur (ex: repo introuvable ou branche 'main' inexistante)
   if (rawData && rawData.error) return { error: rawData.error };
   
-  if (!rawData.tree || !Array.isArray(rawData.tree)) {
+  if (!rawData?.tree || !Array.isArray(rawData?.tree)) {
     return { error: "Impossible de lire l'arborescence. La branche 'main' n'existe peut-être pas sur ce dépôt." };
   }
 
   return {
-    sha: rawData.sha,
-    url: rawData.url,
+    sha: rawData?.sha,
+    url: rawData?.url,
     // On boucle sur l'arbre pour extraire uniquement path, type et size
-    tree: rawData.tree.map((item: any) => ({
-      path: item.path,
-      type: item.type, 
-      size: item.size, // Sera undefined pour les dossiers, ce qui est normal
-    }))
+    tree: rawData?.tree?.map((item: any) => ({
+      path: item?.path,
+      type: item?.type,
+      size: item?.size, // Sera undefined pour les dossiers, ce qui est normal
+    })) || []
   };
 }
-
-testExtractMinimalRepos();

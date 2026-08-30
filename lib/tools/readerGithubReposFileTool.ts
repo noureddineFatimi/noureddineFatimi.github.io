@@ -1,8 +1,8 @@
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
-import { resolveGithubUrl } from "../githubUrlResolver";
-import { fetchFromGithub } from "../githubClient";
-import { extractFileContent } from "../githubParsers";
+import { resolveGithubUrl } from "../github/urlResolver";
+import { fetchFromGithub } from "../github/client";
+import { extractFileContent } from "../github/parsers";
 
 export const readGithubFilesTool = new DynamicStructuredTool({
   name: "lire_fichiers_repo",

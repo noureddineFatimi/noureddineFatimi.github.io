@@ -1,5 +1,5 @@
-import { pdfChunking } from "@/lib/chunking";
-import { ingestToPinecone } from "@/lib/ingestData";
+import { pdfChunking } from "@/lib/ingestion/chunking";
+import { ingestToPinecone } from "@/lib/ingestion/ingestData";
 
 /**
  * Fonction Principale (Main)

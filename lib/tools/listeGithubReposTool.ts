@@ -1,8 +1,8 @@
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
-import { resolveGithubUrl } from "../githubUrlResolver";
-import { fetchFromGithub } from "../githubClient";
-import { extractMinimalRepos } from "../githubParsers";
+import { resolveGithubUrl } from "../github/urlResolver";
+import { fetchFromGithub } from "../github/client";
+import { extractMinimalRepos } from "../github/parsers";
 
 export const listGithubReposTool = new DynamicStructuredTool({
   name: "lister_depots_github",

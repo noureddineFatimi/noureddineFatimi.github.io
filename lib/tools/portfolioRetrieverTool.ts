@@ -2,28 +2,11 @@ import { Pinecone } from "@pinecone-database/pinecone";
 import { PineconeStore } from "@langchain/pinecone";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { createRetrieverTool } from "@langchain/classic/tools/retriever";
+import { embeddingModelParameters } from "../embeddings/embeddingModel";
 
 export async function getRetrieverTool() {
   const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
   const index = pc.index({name: process.env.PINECONE_INDEX_NAME!});
-
-  const embedding_model_provider = process.env.EMBEDDING_MODEL_PROVIDER!
-
-  if (!["HUGGINGFACE", "OPENROUTER"].includes(embedding_model_provider)) {
-    throw new Error("The EMBEDDING_MODEL_PROVIDER variable  must be OPENROUTER or HUGGINGFACE")
-  }
-
-   const embeddingModelParameters = embedding_model_provider === "huggingFace" ? 
-    {
-      baseUrl: process.env.HF_EMBEDDING_BASE_URL!,
-      model: process.env.HF_EMBEDDING_MODEL,
-      openAIApiKey: process.env.HF_API_KEY!
-    } : 
-    {
-      baseUrl: process.env.OR_EMBEDDING_BASE_URL!,
-      model: process.env.OR_EMBEDDING_MODEL,
-      openAIApiKey: process.env.OR_EMBEDDING_API_KEY!
-    }
 
   console.log("🧠 Initialisation du modèle d'Embeddings OpenAI...");
   const embeddings = new OpenAIEmbeddings({

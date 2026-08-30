@@ -9,7 +9,7 @@ export const getGithubTreeTool = new DynamicStructuredTool({
   description: "Retourne l'arborescence complète (fichiers et dossiers) d'un dépôt GitHub sur la branche principale (main). À utiliser systématiquement pour comprendre la structure du projet et trouver les chemins exacts des fichiers avant d'utiliser l'outil 'lire_fichiers_repo'.",
   
   schema: z.object({
-    repoName: z.string().describe("Le nom exact du dépôt GitHub (ex: Atracio-Agent-v1)"),
+    repoName: z.string().min(1, "Le nom du dépôt ne peut pas être vide.").describe("Le nom exact du dépôt GitHub (ex: Atracio-Agent-v1)"),
   }),
 
   func: async ({ repoName }) => {

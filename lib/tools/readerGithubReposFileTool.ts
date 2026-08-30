@@ -12,7 +12,7 @@ export const readGithubFilesTool = new DynamicStructuredTool({
   schema: z.object({
     repoName: z.string().describe("Le nom exact du dépôt GitHub (ex: portfolio-next)"),
     filePaths: z.array(z.string())
-      .min(1)
+      .min(1) //ici que le test de await expect(readGithubFilesTool.invoke({ repoName: "portfolio", filePaths: [] })).rejects.toThrow() passe car on a mis .min(1) pour exiger au moins un fichier et qu'on a pas catcher l'erreur dans le code de l'outil puisque on a le try/catch est sur la fonction execute et pas sur chaque fichier, donc si le tableau est vide, on ne rentre pas dans la boucle et on ne catch pas l'erreur, donc on throw l'erreur de zod qui dit que le tableau doit contenir au moins 1 élément.
       .max(5)
       .describe("Tableau contenant les chemins exacts des fichiers à lire (ex: ['README.md', 'src/app/page.tsx'])"),
   }),

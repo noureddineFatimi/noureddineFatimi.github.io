@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const loadParsers = async () => {
   vi.resetModules();
-  return import("../lib/github/parsers");
+  return import("../../../lib/github/parsers");
 };
 
 describe("extractMinimalRepos", () => {
@@ -298,7 +298,7 @@ describe("extractFileContent", () => {
         "README.md",
       ),
     ).toEqual({
-      error: "Le format du fichier 'README.md' n'est pas supporté (non-base64).",
+      "error": "Le format du fichier 'README.md' n'est pas supporté (non-base64) ou son contenu est null.",
     });
   });
 

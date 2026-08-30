@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { resolveGithubUrl } from "../lib/github/urlResolver";
+import { resolveGithubUrl } from "../../../lib/github/urlResolver";
 
 describe("resolveGithubUrl", () => {
   beforeEach(() => {

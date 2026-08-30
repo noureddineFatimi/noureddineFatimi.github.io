@@ -14,7 +14,7 @@ export const analyzeGithubRepoTool = new DynamicStructuredTool({
   
   // Le Schéma Zod : On force le LLM à fournir un nom de repo ET un tableau d'actions valides
   schema: z.object({
-    repoName: z.string().describe("Le nom exact du dépôt GitHub (ex: mon-projet)"),
+    repoName: z.string().min(1, "Le nom du dépôt ne peut pas être vide.").describe("Le nom exact du dépôt GitHub (ex: mon-projet)"),
     actions: z.array(z.enum(["info", "commits", "languages"]))
       .min(1)
       .describe("La liste des données à récupérer. Choisissez parmi : 'info', 'commits', 'languages'."),

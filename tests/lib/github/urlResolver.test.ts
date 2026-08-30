@@ -6,11 +6,13 @@ describe("resolveGithubUrl", () => {
   beforeEach(() => {
     process.env.GITHUB_USERNAME = "alice";
     process.env.MAIN_GITHUB_REPOSITORIES_BRANCH = "main";
+    process.env.GITHUB_API_BASE_URL = "https://api.github.com";
   });
 
   afterEach(() => {
     delete process.env.GITHUB_USERNAME;
     delete process.env.MAIN_GITHUB_REPOSITORIES_BRANCH;
+    delete process.env.GITHUB_API_BASE_URL;
   });
 
   it("génère l’URL pour list_repos", () => {

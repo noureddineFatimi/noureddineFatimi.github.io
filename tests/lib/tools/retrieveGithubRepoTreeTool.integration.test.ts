@@ -7,6 +7,8 @@ describe("getGithubTreeTool - intégration", () => {
     vi.stubEnv("GITHUB_USERNAME", "octocat");
     vi.stubEnv("GITHUB_PERSONAL_ACCESS_TOKEN", "fake-token");
     vi.stubEnv("MAIN_GITHUB_REPOSITORIES_BRANCH", "main");
+    vi.stubEnv("GITHUB_API_BASE_URL", "https://api.github.com");
+    vi.stubEnv("READING_GITHUB_FILE_MAX_FILE_LENGTH", "1000000");
   });
 
   afterEach(() => {

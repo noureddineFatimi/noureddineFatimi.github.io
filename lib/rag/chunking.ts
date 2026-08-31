@@ -2,7 +2,7 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { Document } from "@langchain/core/documents";
 
 export async function pdfChunking(path: string) : Promise<Document<Record<string, any>>[]> {
-  console.log("📄 Chargement du PDF...");
+  console.log(" Chargement du PDF...");
   
   // Remplace par le chemin exact vers ton fichier CV
   const loader: PDFLoader = new PDFLoader(path); 
@@ -11,8 +11,8 @@ export async function pdfChunking(path: string) : Promise<Document<Record<string
   // Le PDFLoader renvoie souvent une page = un document. On fusionne tout en un seul texte brut.
   const fullText: string = docs.map(doc => doc.pageContent).join("\n");
 
-  console.log("✂️ Découpage en sections (Chunking sémantique)...");
-  // ⚠️ TRÈS IMPORTANT : Adapte cette liste avec les titres EXACTS qui apparaissent dans ton CV.
+  console.log(" Découpage en sections (Chunking sémantique)...");
+  // TRÈS IMPORTANT : Adapte cette liste avec les titres EXACTS qui apparaissent dans ton CV.
   // Par exemple, si tu as écrit "Parcours Scolaire" au lieu de "Formation", ajoute-le ici.
   const headers: string[] = [
     "PROFIL\n", "FORMATION\n", "EXPÉRIENCE PROFESSIONNELLE\n", "PROJETS ACADÉMIQUES\n",
@@ -47,16 +47,6 @@ export async function pdfChunking(path: string) : Promise<Document<Record<string
       }));
     }
   }
-
-  console.log("\n✅ Voici les Chunks générés :\n");
-  
-  chunks.forEach((chunk: Document<Record<string, any>>, index: number) => {
-    console.log(`\n==================================================`);
-    console.log(`📌 CHUNK ${index + 1} | Catégorie (Metadata): ${chunk.metadata.category}`);
-    console.log(`==================================================`);
-    // On affiche le contenu complet du chunk pour que tu puisses bien vérifier
-    console.log(chunk.pageContent); 
-  });
 
   return chunks
 }

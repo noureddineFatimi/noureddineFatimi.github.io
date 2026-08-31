@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 const provider = process.env.EMBEDDING_MODEL_PROVIDER;
 
 if (!["HUGGINGFACE", "OPENROUTER"].includes(provider ?? "")) {

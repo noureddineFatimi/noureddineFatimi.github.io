@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
 import { FileContentResult, MinimalRepo, RepoCommit, RepoLanguages, RepoMetadata, RepoTree } from "./types";
 
-dotenv.config({ path: ".env.local" });
 
 const MAX_FILE_LENGTH: number = Number(process.env.READING_GITHUB_FILE_MAX_FILE_LENGTH)
 

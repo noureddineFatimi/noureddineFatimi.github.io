@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 export async function fetchFromGithub(url: string) {
   const token = process.env.GITHUB_PERSONAL_ACCESS_TOKEN;
   

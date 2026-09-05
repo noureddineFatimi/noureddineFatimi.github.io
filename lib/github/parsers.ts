@@ -4,6 +4,8 @@ import { FileContentResult, MinimalRepo, RepoCommit, RepoLanguages, RepoMetadata
 
 
 const MAX_FILE_LENGTH: number = Number(process.env.READING_GITHUB_FILE_MAX_FILE_LENGTH)
+const MAX_GITHUB_REPOSITORIES: number = Number(process.env.MAX_GITHUB_REPOSITORIES)
+const MAX_TREE_LENGTH = Number(process.env.MAX_TREE_LENGTH) || 200; // Valeur par défaut si non définie
 
 /**
  * Prend la réponse brute de l'API GitHub et extrait uniquement les clés essentielles.
@@ -19,6 +21,16 @@ export function extractMinimalRepos(rawRepos: any): MinimalRepo[] | { error: str
   // Sécurité : on s'assure que la donnée reçue est bien un tableau
   if (!Array.isArray(rawRepos)) {
     return { error: "La réponse de l'API GitHub n'est pas une liste valide de dépôts." };
+  }
+
+  if (rawRepos.length > MAX_GITHUB_REPOSITORIES) {
+    rawRepos = rawRepos.slice(0, MAX_GITHUB_REPOSITORIES);
+    rawRepos.push({
+      id: -1,
+      name: "... [TROP DE DÉPÔTS, LISTE TRONQUÉE] ...",
+      full_name: "... [TROP DE DÉPÔTS, LISTE TRONQUÉE] ...",
+      private: false
+    });
   }
 
   // La fonction map() boucle sur le tableau et crée un nouveau tableau épuré
@@ -164,11 +176,27 @@ export function extractRepoTree(rawData: any): RepoTree | { error: string } {
     return { error: "Impossible de lire l'arborescence. La branche 'main' n'existe peut-être pas sur ce dépôt." };
   }
 
+  const excludedPaths = /^(node_modules|dist|build|\.git|\.venv|venv|__pycache__|\.next)($|\/)/;
+
+  let cleanTree = rawData?.tree?.filter((item: any) => !excludedPaths.test(item?.path)) || [];
+
+  // On trie par ordre alphabétique pour plus de lisibilité
+  cleanTree.sort((a: any, b: any) => a?.path?.localeCompare(b?.path));
+
+  if (cleanTree.length > MAX_TREE_LENGTH) {
+    cleanTree = cleanTree.slice(0, MAX_TREE_LENGTH);
+    cleanTree.push({
+      path: "... [ARBORESCENCE TRONQUÉE CAR TROP LONGUE] ...",
+      type: "file",
+      size: undefined
+    });
+  }
+
   return {
     sha: rawData?.sha,
     url: rawData?.url,
     // On boucle sur l'arbre pour extraire uniquement path, type et size
-    tree: rawData?.tree?.map((item: any) => ({
+    tree: cleanTree.map((item: any) => ({
       path: item?.path,
       type: item?.type,
       size: item?.size, // Sera undefined pour les dossiers, ce qui est normal

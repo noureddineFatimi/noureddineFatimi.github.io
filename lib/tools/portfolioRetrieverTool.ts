@@ -6,14 +6,7 @@ import { PineconeStore } from "@langchain/pinecone";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { createRetrieverTool } from "@langchain/classic/tools/retriever";
 import { embeddingModelParameters } from "../embeddings/embeddingModel";
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
-  return value;
-}
+import { requireEnv } from "../utils";
 
 export async function getRetrieverTool() {
   const pineconeApiKey = requireEnv("VECTOR_DATABASE_API_KEY");

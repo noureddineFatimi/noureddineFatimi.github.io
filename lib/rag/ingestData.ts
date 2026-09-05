@@ -6,19 +6,12 @@ import { Pinecone } from "@pinecone-database/pinecone";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { embeddingModelParameters } from "../embeddings/embeddingModel";
 import crypto from "crypto";
+import { requireEnv } from "../utils"; // Importation de la fonction requireEnv depuis utils.ts
 // Charge les variables d'environnement de Next.js
 
 /**
  * Étape 2 : Envoyer les chunks vers Pinecone
  */
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
-  return value;
-}
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));

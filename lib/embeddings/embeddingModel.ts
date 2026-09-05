@@ -1,22 +1,14 @@
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
+import { requireEnv } from "../utils";
+
 const provider = process.env.EMBEDDING_MODEL_PROVIDER;
 
 if (!["HUGGINGFACE", "OPENROUTER"].includes(provider ?? "")) {
   throw new Error(
     "EMBEDDING_MODEL_PROVIDER must be OPENROUTER or HUGGINGFACE"
   );
-}
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
-
-  return value;
 }
 
 export const embeddingModelParameters =

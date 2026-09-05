@@ -17,9 +17,10 @@ import {
   mapChatMessagesToStoredMessages,
   mapStoredMessagesToChatMessages,
   HumanMessage,
-  type StoredMessage,
   type BaseMessage,
 } from "@langchain/core/messages";
+import { requireEnv } from "../utils";
+import { AgentSession } from "./types";
 
 const agentLogsFolderPath = "./logs/agentLogs";
 
@@ -38,14 +39,6 @@ export async function log(message: string) {
     `[${new Date().toISOString()}] ${message}\n`,
     "utf8",
   );
-}
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
-  return value;
 }
 
 export async function createPortfolioAgent() {
@@ -74,12 +67,6 @@ export async function createPortfolioAgent() {
   });
 }
 
-interface AgentSession {
-  runId: number;
-  startTime: string;
-  messages: StoredMessage[]; 
-}
-
 async function main() {
   await initLogger();
   const agent = await createPortfolioAgent();
@@ -95,7 +82,7 @@ async function main() {
   });
 
   try {
-    await redis.set(`agent-session-${sessionId}`, JSON.stringify({ runId, startTime: new Date().toISOString(), messages: [] }), { ex: 7200 });
+    await redis.set(`agent-session-${sessionId}`, JSON.stringify({ runId, startTime: new Date().toISOString(), messages: [] }), { ex: Number(requireEnv("SESSION_TTL")) });
   }
   catch (error) {
     console.error("Erreur lors de l'enregistrement de la session dans Redis :", error);
@@ -140,7 +127,7 @@ async function main() {
 
       const newStoredMessages = mapChatMessagesToStoredMessages(llmResponse.messages as BaseMessage[],);
 
-      await redis.set(`agent-session-${sessionId}`, JSON.stringify({ runId, startTime: new Date().toISOString(), messages: newStoredMessages }), { ex: 7200 });
+      await redis.set(`agent-session-${sessionId}`, JSON.stringify({ runId, startTime: new Date().toISOString(), messages: newStoredMessages }), { ex: Number(requireEnv("SESSION_TTL")) });
 
       await log(`AGENT RESPONSE GRAPH :\n${JSON.stringify(llmResponse?.messages, null, 2)}`);
       

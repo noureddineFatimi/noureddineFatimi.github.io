@@ -3,6 +3,13 @@ import { z } from "zod";
 import { resolveGithubUrl } from "../github/urlResolver";
 import { fetchFromGithub } from "../github/client";
 import { extractRepoTree } from "../github/parsers";
+import {Redis} from "@upstash/redis";
+import { requireEnv } from "../utils";
+
+ const redis = new Redis({
+        url: requireEnv("UPSTASH_REDIS_REST_URL"),
+        token: requireEnv("UPSTASH_REDIS_REST_TOKEN"),
+      });
 
 export const getGithubTreeTool = new DynamicStructuredTool({
   name: "recuperer_arborescence_repo",
@@ -16,7 +23,15 @@ export const getGithubTreeTool = new DynamicStructuredTool({
     try {
       // 1. Résolution de l'URL
       const url = resolveGithubUrl("repo_tree", { repoName });
-      
+
+      const cacheKey = `${requireEnv("GITHUB_REPO_TREE_CACHE_KEY_PREFIX")}_${repoName}`;
+
+      const cachedData = await redis.get(cacheKey);
+
+      if (cachedData) {
+        return cachedData;
+      }
+
       // 2. Appel HTTP
       const rawData = await fetchFromGithub(url);
       
@@ -28,8 +43,13 @@ export const getGithubTreeTool = new DynamicStructuredTool({
         return JSON.stringify(treeData);
       }
 
+      const treeDataString = JSON.stringify(treeData, null, 2);
+
+      // 4. Mise en cache des résultats pour 2 heures
+      await redis.set(cacheKey, treeDataString, { ex: Number(requireEnv("GITHUB_CACHE_TTL")) });
+
       // On renvoie le tout formaté pour le LLM
-      return JSON.stringify(treeData, null, 2);
+      return treeDataString;
 
     } catch (error) {
       console.error(`Erreur dans l'outil recuperer_arborescence_repo pour ${repoName}:`, error);

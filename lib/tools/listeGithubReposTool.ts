@@ -3,6 +3,15 @@ import { z } from "zod";
 import { resolveGithubUrl } from "../github/urlResolver";
 import { fetchFromGithub } from "../github/client";
 import { extractMinimalRepos } from "../github/parsers";
+import {Redis} from "@upstash/redis";
+import { requireEnv } from "../utils";
+
+ const redis = new Redis({
+          url: requireEnv("UPSTASH_REDIS_REST_URL"),
+          token: requireEnv("UPSTASH_REDIS_REST_TOKEN"),
+      });
+
+const cacheKey = requireEnv("GITHUB_REPOS_CACHE_KEY");
 
 export const listGithubReposTool = new DynamicStructuredTool({
   name: "lister_depots_github",
@@ -15,6 +24,13 @@ export const listGithubReposTool = new DynamicStructuredTool({
     try {
       // 1. Résolution de l'URL via notre fabrique
       const url = resolveGithubUrl("list_repos");
+
+      const cachedData = await redis.get(cacheKey);
+
+      if (cachedData) {
+        console.log("Données mises en cache trouvées pour la liste des dépôts GitHub.");
+        return cachedData;
+      }
       
       // 2. Appel HTTP sécurisé via notre wrapper
       const rawData = await fetchFromGithub(url);
@@ -28,8 +44,13 @@ export const listGithubReposTool = new DynamicStructuredTool({
         return JSON.stringify(parsedRepos);
       }
 
+      const parsedReposString = JSON.stringify(parsedRepos, null, 2);
+
+      // 4. Mise en cache des résultats pour 2 heure
+      await redis.set(cacheKey, parsedReposString, { ex: Number(requireEnv("GITHUB_CACHE_TTL")) });
+
       // Si tout va bien, on convertit notre tableau épuré en chaîne de caractères pour le LLM
-      return JSON.stringify(parsedRepos, null, 2);
+      return parsedReposString;
 
     } catch (error) {
       // Sécurité ultime : si une exception imprévue se produit (ex: le resolver échoue)

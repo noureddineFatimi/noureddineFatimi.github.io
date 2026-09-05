@@ -3,8 +3,8 @@ dotenv.config({ path: ".env.local" });
 import { FileContentResult, MinimalRepo, RepoCommit, RepoLanguages, RepoMetadata, RepoTree } from "./types";
 
 
-const MAX_FILE_LENGTH: number = Number(process.env.READING_GITHUB_FILE_MAX_FILE_LENGTH)
-const MAX_GITHUB_REPOSITORIES: number = Number(process.env.MAX_GITHUB_REPOSITORIES)
+const MAX_FILE_LENGTH: number = Number(process.env.READING_GITHUB_FILE_MAX_FILE_LENGTH) || 10000; // Valeur par défaut si non définie
+const MAX_GITHUB_REPOSITORIES: number = Number(process.env.MAX_GITHUB_REPOSITORIES) || 50; // Valeur par défaut si non définie
 const MAX_TREE_LENGTH = Number(process.env.MAX_TREE_LENGTH) || 200; // Valeur par défaut si non définie
 
 /**

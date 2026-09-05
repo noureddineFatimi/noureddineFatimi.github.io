@@ -1,18 +1,15 @@
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
+import { requireEnv } from "../utils";
+
 export async function fetchFromGithub(url: string) {
-  const token = process.env.GITHUB_PERSONAL_ACCESS_TOKEN;
-  
-  if (!token) {
-    throw new Error("Erreur critique : GITHUB_PERSONAL_ACCESS_TOKEN est manquant.");
-  }
 
   try {
     const response = await fetch(url, {
       // Configuration des headers obligatoires de GitHub
       headers: {
-        "Authorization": `Bearer ${token}`,
+        "Authorization": `Bearer ${requireEnv("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
         "Accept": "application/vnd.github.v3+json",
         "X-GitHub-Api-Version": "2022-11-28", // Fixer la version est une bonne pratique
       },

@@ -14,11 +14,11 @@
   "dependencies": {
     "@base-ui/react": "^1.5.0",
     "@langchain/classic": "^1.0.45",
-    "@langchain/community": "^1.1.29",
     "@langchain/core": "^1.2.9",
     "@langchain/openai": "^1.5.10",
     "@langchain/pinecone": "^1.0.3",
     "@pinecone-database/pinecone": "^8.2.0",
+    "@upstash/redis": "^1.38.3",
     "@vercel/analytics": "1.6.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

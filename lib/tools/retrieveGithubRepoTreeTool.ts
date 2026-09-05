@@ -3,13 +3,7 @@ import { z } from "zod";
 import { resolveGithubUrl } from "../github/urlResolver";
 import { fetchFromGithub } from "../github/client";
 import { extractRepoTree } from "../github/parsers";
-import {Redis} from "@upstash/redis";
-import { requireEnv } from "../utils";
-
- const redis = new Redis({
-        url: requireEnv("UPSTASH_REDIS_REST_URL"),
-        token: requireEnv("UPSTASH_REDIS_REST_TOKEN"),
-      });
+import { requireEnv, redis } from "../utils";
 
 export const getGithubTreeTool = new DynamicStructuredTool({
   name: "recuperer_arborescence_repo",

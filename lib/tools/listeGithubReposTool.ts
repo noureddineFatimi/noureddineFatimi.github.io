@@ -3,13 +3,7 @@ import { z } from "zod";
 import { resolveGithubUrl } from "../github/urlResolver";
 import { fetchFromGithub } from "../github/client";
 import { extractMinimalRepos } from "../github/parsers";
-import {Redis} from "@upstash/redis";
-import { requireEnv } from "../utils";
-
- const redis = new Redis({
-          url: requireEnv("UPSTASH_REDIS_REST_URL"),
-          token: requireEnv("UPSTASH_REDIS_REST_TOKEN"),
-      });
+import { requireEnv, redis } from "../utils";
 
 const cacheKey = requireEnv("GITHUB_REPOS_CACHE_KEY");
 

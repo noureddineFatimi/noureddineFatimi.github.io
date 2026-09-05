@@ -1,7 +1,12 @@
 import { StoredMessage } from "@langchain/core/messages";
 
-export interface AgentSession {
+export interface TestAgentSession {
   runId: number;
-  startTime: string;
+  lastUpdateTime: string;
+  messages: StoredMessage[]; 
+}
+
+export interface AgentSession {
+  lastUpdateTime: string;
   messages: StoredMessage[]; 
 }

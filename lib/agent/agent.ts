@@ -22,18 +22,12 @@ import {
 import { requireEnv } from "../utils";
 import { AgentSession } from "./types";
 
-const agentLogsFolderPath = "./logs/agentLogs";
-
-const runId = Math.floor(Date.now() / 1000);
-
-const logFile = `${agentLogsFolderPath}/test-agent-run-${runId}.log`;
-
-export async function initLogger() {
+export async function initLogger(agentLogsFolderPath: string, runId: number, logFile: string) {
   await mkdir(agentLogsFolderPath, { recursive: true });
   await appendFile(logFile, `=== Agent run ${runId} ===\n\n`, "utf8");
 }
 
-export async function log(message: string) {
+export async function log(message: string, logFile: string) {
   await appendFile(
     logFile,
     `[${new Date().toISOString()}] ${message}\n`,
@@ -68,7 +62,10 @@ export async function createPortfolioAgent() {
 }
 
 async function main() {
-  await initLogger();
+  const agentLogsFolderPath = "./logs/agentLogs";
+  const runId = Math.floor(Date.now() / 1000);
+  const logFile = `${agentLogsFolderPath}/test-agent-run-${runId}.log`;
+  await initLogger(agentLogsFolderPath, runId, logFile);
   const agent = await createPortfolioAgent();
   const rl = readline.createInterface({ input, output });
 
@@ -86,7 +83,7 @@ async function main() {
   }
   catch (error) {
     console.error("Erreur lors de l'enregistrement de la session dans Redis :", error);
-    await log(`ERREUR REDIS : ${error}`);
+    await log(`ERREUR REDIS : ${error}`, logFile);
     return;
   }
 
@@ -98,7 +95,7 @@ async function main() {
         break;
       }
 
-      await log(`QUESTION: ${question}`);
+      await log(`QUESTION: ${question}`, logFile);
 
       const redisSession = await redis.get<AgentSession>(`agent-session-${sessionId}`);
 
@@ -129,9 +126,9 @@ async function main() {
 
       await redis.set(`agent-session-${sessionId}`, JSON.stringify({ runId, startTime: new Date().toISOString(), messages: newStoredMessages }), { ex: Number(requireEnv("SESSION_TTL")) });
 
-      await log(`AGENT RESPONSE GRAPH :\n${JSON.stringify(llmResponse?.messages, null, 2)}`);
+      await log(`AGENT RESPONSE GRAPH :\n${JSON.stringify(llmResponse?.messages, null, 2)}`, logFile);
       
-      await log(`=== END OF AGENT RESPONSE ===\n\n`);
+      await log(`=== END OF AGENT RESPONSE ===\n\n`, logFile);
 
       const finalMessage = llmResponse?.messages?.[llmResponse?.messages.length - 1];
 
@@ -140,8 +137,8 @@ async function main() {
       console.log("\n---\n");
     } catch (error) {
       console.error("Erreur lors de la saisie ou de l'appel à l'agent :", error);
-      await log(`ERREUR : ${error}`);
-      await log(`=== END OF AGENT RESPONSE ===\n\n`);
+      await log(`ERREUR : ${error}`, logFile);
+      await log(`=== END OF AGENT RESPONSE ===\n\n`, logFile);
     }
   }
 
@@ -151,7 +148,6 @@ async function main() {
 if (process.argv[1]?.endsWith("agent.ts") || process.argv[1]?.endsWith("agent.js")) {
   void main().catch(async (error) => {
     console.error("Erreur fatale de démarrage de l'agent :", error);
-    await log(`ERREUR FATALE : ${error}`);
     process.exit(1);
   });
 }

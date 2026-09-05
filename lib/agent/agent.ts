@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
-import { createAgent, AIMessage } from "langchain";
+import { createAgent } from "langchain";
 import { ChatOpenAI } from "@langchain/openai";
 import readline from "readline/promises";
 import { stdin as input, stdout as output } from "process";
@@ -12,6 +12,14 @@ import { readGithubFilesTool } from "../tools/readerGithubReposFileTool";
 import { getGithubTreeTool } from "../tools/retrieveGithubRepoTreeTool";
 import { systemPrompt } from "./systemPrompt";
 import { appendFile, mkdir } from "fs/promises";
+import { Redis } from "@upstash/redis";
+import {
+  mapChatMessagesToStoredMessages,
+  mapStoredMessagesToChatMessages,
+  HumanMessage,
+  type StoredMessage,
+  type BaseMessage,
+} from "@langchain/core/messages";
 
 const agentLogsFolderPath = "./logs/agentLogs";
 
@@ -50,6 +58,7 @@ export async function createPortfolioAgent() {
       baseURL: requireEnv("LLM_BASE_URL"),
     },
   });
+  //ajouter dans front end un limiteur sur l'input de user dans le chat pour eviter de depasser la limite de token du model dans un seul message et eviter le prompt injecton.
 
   return createAgent({
     name: "portfolio-Agent",
@@ -65,12 +74,34 @@ export async function createPortfolioAgent() {
   });
 }
 
+interface AgentSession {
+  runId: number;
+  startTime: string;
+  messages: StoredMessage[]; 
+}
+
 async function main() {
   await initLogger();
   const agent = await createPortfolioAgent();
   const rl = readline.createInterface({ input, output });
 
+  const sessionId = crypto.randomUUID();
+
   console.log("Agent portfolio prêt. Tapez votre question (ou 'exit' pour quitter).\n");
+
+  const redis = new Redis({
+    url: requireEnv("UPSTASH_REDIS_REST_URL"),
+    token: requireEnv("UPSTASH_REDIS_REST_TOKEN"),
+  });
+
+  try {
+    await redis.set(`agent-session-${sessionId}`, JSON.stringify({ runId, startTime: new Date().toISOString(), messages: [] }), { ex: 7200 });
+  }
+  catch (error) {
+    console.error("Erreur lors de l'enregistrement de la session dans Redis :", error);
+    await log(`ERREUR REDIS : ${error}`);
+    return;
+  }
 
   while (true) {
     try {
@@ -82,17 +113,42 @@ async function main() {
 
       await log(`QUESTION: ${question}`);
 
-      const llmResponse = await agent.invoke({
-        messages: [{ role: "user", content: question }]
-      });
+      const redisSession = await redis.get<AgentSession>(`agent-session-${sessionId}`);
 
-      await log(`AGENT RESPONSE GRAPH :\n${JSON.stringify(llmResponse.messages, null, 2)}`);
+      const previousMessages: BaseMessage[] = mapStoredMessagesToChatMessages(redisSession?.messages ?? [], );
+      
+      previousMessages.push(new HumanMessage(question));
+
+      let lastMessages: BaseMessage[] = previousMessages;
+
+      if (previousMessages.length > 15) {
+        const minimumStartIndex = previousMessages.length - 15;
+        let sliceIndex = minimumStartIndex;
+        for (let i = minimumStartIndex; i >= 0; i--) {
+          if (previousMessages[i] instanceof HumanMessage) {
+            sliceIndex = i;
+            break;
+          }
+        }
+        lastMessages = previousMessages.slice(sliceIndex);
+      }
+      
+      console.log("Historique envoyé au modèle : ");
+      console.log(lastMessages);
+
+      const llmResponse = await agent.invoke({ messages: lastMessages });
+
+      const newStoredMessages = mapChatMessagesToStoredMessages(llmResponse.messages as BaseMessage[],);
+
+      await redis.set(`agent-session-${sessionId}`, JSON.stringify({ runId, startTime: new Date().toISOString(), messages: newStoredMessages }), { ex: 7200 });
+
+      await log(`AGENT RESPONSE GRAPH :\n${JSON.stringify(llmResponse?.messages, null, 2)}`);
       
       await log(`=== END OF AGENT RESPONSE ===\n\n`);
 
-      const finalMessage = llmResponse.messages[llmResponse.messages.length - 1];
-  
-      console.log(`Réponse: ${finalMessage.content}`);
+      const finalMessage = llmResponse?.messages?.[llmResponse?.messages.length - 1];
+
+      console.log(`Réponse: ${finalMessage?.content}`);
 
       console.log("\n---\n");
     } catch (error) {

@@ -1,16 +1,26 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const redisMock = vi.hoisted(() => ({
+  get: vi.fn(),
+  set: vi.fn(),
+}));
+
+vi.mock("../../../lib/utils", () => ({
+  requireEnv: vi.fn((name: string) => {
+    if (name === "GITHUB_REPOS_CACHE_KEY") return "fake-key";
+    if (name === "GITHUB_CACHE_TTL") return "3600";
+    return `mock-${name}`;
+  }),
+  redis: redisMock,
+}));
+
 import { getGithubTreeTool } from "../../../lib/tools/retrieveGithubRepoTreeTool";
 
 describe("getGithubTreeTool - intégration", () => {
   beforeEach(() => {
-    vi.stubEnv("GITHUB_USERNAME", "octocat");
-    vi.stubEnv("GITHUB_PERSONAL_ACCESS_TOKEN", "fake-token");
-    vi.stubEnv("MAIN_GITHUB_REPOSITORIES_BRANCH", "main");
-    vi.stubEnv("GITHUB_API_BASE_URL", "https://api.github.com");
-    vi.stubEnv("READING_GITHUB_FILE_MAX_FILE_LENGTH", "1000000");
-    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://redis-url.upstash.io")
-    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "fake-token")
+    vi.clearAllMocks()
+    redisMock.get.mockResolvedValue(null);
+    redisMock.set.mockResolvedValue("OK"); 
   });
 
   afterEach(() => {
@@ -54,10 +64,10 @@ describe("getGithubTreeTool - intégration", () => {
     });
 
     expect(global.fetch).toHaveBeenCalledWith(
-      "https://api.github.com/repos/octocat/portfolio/git/trees/main?recursive=true",
+      "https://api.github.com/repos/noureddineFatimi/portfolio/git/trees/main?recursive=true",
       expect.objectContaining({
         headers: expect.objectContaining({
-          Authorization: "Bearer fake-token",
+          Authorization: "Bearer mock-GITHUB_PERSONAL_ACCESS_TOKEN",
         }),
       }),
     );

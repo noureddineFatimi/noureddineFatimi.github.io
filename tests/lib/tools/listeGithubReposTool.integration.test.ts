@@ -1,15 +1,26 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const redisMock = vi.hoisted(() => ({
+  get: vi.fn(),
+  set: vi.fn(),
+}));
+
+vi.mock("../../../lib/utils", () => ({
+  requireEnv: vi.fn((name: string) => {
+    if (name === "GITHUB_REPOS_CACHE_KEY") return "fake-key";
+    if (name === "GITHUB_CACHE_TTL") return "3600";
+    return `mock-${name}`;
+  }),
+  redis: redisMock,
+}));
+
 import { listGithubReposTool } from "../../../lib/tools/listeGithubReposTool";
 
 describe("listGithubReposTool - intégration", () => {
   beforeEach(() => {
-    vi.stubEnv("GITHUB_USERNAME", "octocat");
-    vi.stubEnv("GITHUB_PERSONAL_ACCESS_TOKEN", "fake-token");
-    vi.stubEnv("GITHUB_API_BASE_URL", "https://api.github.com");
-    vi.stubEnv("READING_GITHUB_FILE_MAX_FILE_LENGTH", "1000000");
-    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://redis-url.upstash.io")
-    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "fake-token")
+    vi.clearAllMocks()
+    redisMock.get.mockResolvedValue(null);
+    redisMock.set.mockResolvedValue("OK");  
   });
 
   afterEach(() => {
@@ -59,11 +70,11 @@ describe("listGithubReposTool - intégration", () => {
     ]);
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.github.com/users/octocat/repos?sort=updated&per_page=100",
+      "https://api.github.com/users/noureddineFatimi/repos?sort=updated&per_page=100",
       expect.objectContaining({
         cache: "no-store",
         headers: expect.objectContaining({
-          Authorization: "Bearer fake-token",
+          Authorization: "Bearer mock-GITHUB_PERSONAL_ACCESS_TOKEN",
           Accept: "application/vnd.github.v3+json",
           "X-GitHub-Api-Version": "2022-11-28",
         }),

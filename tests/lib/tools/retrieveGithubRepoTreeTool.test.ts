@@ -1,5 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+const redisMock = vi.hoisted(() => ({
+  get: vi.fn(),
+  set: vi.fn(),
+}));
 
+vi.mock("../../../lib/utils", () => ({
+  requireEnv: vi.fn((name: string) => {
+    if (name === "GITHUB_REPOS_CACHE_KEY") return "fake-key";
+    if (name === "GITHUB_CACHE_TTL") return "3600";
+    return `mock-${name}`;
+  }),
+  redis: redisMock,
+}));
 vi.mock("../../../lib/github/urlResolver.ts", () => ({
   resolveGithubUrl: vi.fn(),
 }));
@@ -19,6 +31,9 @@ import { extractRepoTree } from "../../../lib/github/parsers";
 
 describe("getGithubTreeTool", () => {
   beforeEach(() => {
+    vi.clearAllMocks()
+    redisMock.get.mockResolvedValue(null);
+    redisMock.set.mockResolvedValue("OK"); 
     vi.clearAllMocks();
   });
 

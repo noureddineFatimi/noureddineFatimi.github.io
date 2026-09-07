@@ -18,8 +18,8 @@ describe("fetchFromGithub", () => {
     const { fetchFromGithub } = await loadClient();
     delete process.env.GITHUB_PERSONAL_ACCESS_TOKEN;
 
-    await expect(fetchFromGithub("https://api.github.com/repos/alice/portfolio")).rejects.toThrow(
-      "Erreur critique : GITHUB_PERSONAL_ACCESS_TOKEN est manquant.",
+    await expect(fetchFromGithub("https://api.github.com/repos/alice/portfolio")).resolves.toEqual(
+      { error: "Échec de la connexion à l'API GitHub." }
     );
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });

@@ -12,6 +12,8 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@ai-sdk/langchain": "^3.0.93",
+    "@ai-sdk/react": "^4.0.96",
     "@base-ui/react": "^1.5.0",
     "@langchain/classic": "^1.0.45",
     "@langchain/core": "^1.2.9",
@@ -20,6 +22,7 @@
     "@pinecone-database/pinecone": "^8.2.0",
     "@upstash/redis": "^1.38.3",
     "@vercel/analytics": "1.6.1",
+    "ai": "^7.0.93",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
@@ -27,6 +30,8 @@
     "lucide-react": "^1.16.0",
     "next": "16.2.6",
     "pdf-parse": "^2.4.5",
+    "pdf-ts": "^0.0.2",
+    "pdfjs-dist": "^6.3.289",
     "react": "^19",
     "react-dom": "^19",
     "shadcn": "^4.8.0",

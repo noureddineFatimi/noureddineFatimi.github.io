@@ -23,7 +23,7 @@ export const listGithubReposTool = new DynamicStructuredTool({
 
       if (cachedData) {
         console.log("Données mises en cache trouvées pour la liste des dépôts GitHub.");
-        return cachedData;
+        return JSON.stringify(cachedData, null, 2);
       }
       
       // 2. Appel HTTP sécurisé via notre wrapper

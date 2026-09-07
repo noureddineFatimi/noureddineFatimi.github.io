@@ -23,7 +23,7 @@ export const getGithubTreeTool = new DynamicStructuredTool({
       const cachedData = await redis.get(cacheKey);
 
       if (cachedData) {
-        return cachedData;
+        return JSON.stringify(cachedData, null, 2);;
       }
 
       // 2. Appel HTTP

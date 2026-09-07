@@ -1,15 +1,14 @@
-import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { Document } from "@langchain/core/documents";
+import * as fs from 'fs/promises';
+import { pdfToText } from 'pdf-ts';
 
 export async function pdfChunking(path: string) : Promise<Document<Record<string, any>>[]> {
   console.log(" Chargement du PDF...");
   
-  // Remplace par le chemin exact vers ton fichier CV
-  const loader: PDFLoader = new PDFLoader(path); 
-  const docs: Document<Record<string, any>>[] = await loader.load();
-  
-  // Le PDFLoader renvoie souvent une page = un document. On fusionne tout en un seul texte brut.
-  const fullText: string = docs.map(doc => doc.pageContent).join("\n");
+  const pdfBuffer = await fs.readFile(path);
+    
+  // 2. Parse the buffer and extract the text
+  const fullText = await pdfToText(pdfBuffer);
 
   console.log(" Découpage en sections (Chunking sémantique)...");
   // TRÈS IMPORTANT : Adapte cette liste avec les titres EXACTS qui apparaissent dans ton CV.

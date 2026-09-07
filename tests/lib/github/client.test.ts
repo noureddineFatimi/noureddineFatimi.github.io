@@ -6,6 +6,8 @@ describe("fetchFromGithub", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", vi.fn());
     process.env.GITHUB_PERSONAL_ACCESS_TOKEN = "test-token";
+    process.env.UPSTASH_REDIS_REST_URL = "https://redis-url.com";
+    process.env.UPSTASH_REDIS_REST_TOKEN = "test-token";
   });
 
   afterEach(() => {

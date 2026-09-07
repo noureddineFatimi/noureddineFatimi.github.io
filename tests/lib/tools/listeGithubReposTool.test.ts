@@ -19,6 +19,8 @@ import { extractMinimalRepos } from "../../../lib/github/parsers";
 
 describe("listGithubReposTool", () => {
   beforeEach(() => {
+    process.env.UPSTASH_REDIS_REST_URL = "https://redis-url.com";
+    process.env.UPSTASH_REDIS_REST_TOKEN = "test-token";
     vi.clearAllMocks();
   });
 

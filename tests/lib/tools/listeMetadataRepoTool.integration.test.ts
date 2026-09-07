@@ -8,6 +8,8 @@ describe("analyzeGithubRepoTool - intégration", () => {
     vi.stubEnv("GITHUB_PERSONAL_ACCESS_TOKEN", "fake-token");
     vi.stubEnv("GITHUB_API_BASE_URL", "https://api.github.com");
     vi.stubEnv("READING_GITHUB_FILE_MAX_FILE_LENGTH", "1000000");
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://redis-url.upstash.io")
+    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "fake-token")
   });
 // stubenv permet de substituer temporairementles variables d'environnement chargées depuis env.local.
 // Les varaiables d'environnement dont chargées depuis env.local puisque on a dotenv dans les fichiers des fonctions a tester. Mais dans GitHub Actions, les variables d'environnement ne sont pas définies dans le fichier .env.local, car ce fichier n'est pas inclus dans le dépôt pour des raisons de sécurité. Donc, on doit les stubber dans les tests pour les exister et à la fois définir comme le test exige.

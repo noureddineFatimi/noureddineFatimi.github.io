@@ -14,7 +14,7 @@ describe("fetchFromGithub", () => {
     vi.clearAllMocks();
   });
 
-  it("lève une erreur si le token est absent", async () => {
+  it("retourne un message d'erreur si le token est absent", async () => {
     const { fetchFromGithub } = await loadClient();
     delete process.env.GITHUB_PERSONAL_ACCESS_TOKEN;
 

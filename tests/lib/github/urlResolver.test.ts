@@ -54,11 +54,11 @@ describe("resolveGithubUrl", () => {
     );
   });
 
-  it("lève une erreur si GITHUB_USERNAME est absent", () => {
+  it("utilise un username par defaut si GITHUB_USERNAME est absent", () => {
     delete process.env.GITHUB_USERNAME;
 
-    expect(() => resolveGithubUrl("list_repos")).toThrow(
-      "Erreur Critique : GITHUB_USERNAME n'est pas défini dans les variables d'environnement.",
+    expect(resolveGithubUrl("list_repos")).toBe(
+      "https://api.github.com/users/noureddineFatimi/repos?sort=updated&per_page=100"
     );
   });
 

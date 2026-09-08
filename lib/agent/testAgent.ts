@@ -156,7 +156,7 @@ async function chatWithAgentInNormaleMode() {
 }
 
 if (process.argv[1]?.endsWith("testAgent.ts")) {
-  void testChatWithAgentInStreamingMode().catch(async (error) => {
+  void chatWithAgentInNormaleMode().catch(async (error) => {
     console.error("Erreur fatale de démarrage de l'agent :", error);
     process.exit(1);
   });

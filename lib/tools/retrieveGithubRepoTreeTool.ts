@@ -24,7 +24,7 @@ export const getGithubTreeTool = new DynamicStructuredTool({
       const cachedData = await redis.get(cacheKey);
 
       if (cachedData) {
-        return JSON.stringify(cachedData, null, 2);;
+        return JSON.stringify(cachedData, null, 2); //verifier que si treedata contient la cle erreur ne sauvegarder pas dans le cache
       }
 
       // 2. Appel HTTP

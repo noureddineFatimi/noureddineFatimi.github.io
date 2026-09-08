@@ -7,6 +7,8 @@ import {
   extractRepoCommits, 
   extractRepoLanguages 
 } from "../github/parsers";
+import { requireEnv } from "../utils";
+import { redis } from "../redis";
 
 export const analyzeGithubRepoTool = new DynamicStructuredTool({
   name: "analyser_metadonnees_repo",
@@ -28,12 +30,23 @@ export const analyzeGithubRepoTool = new DynamicStructuredTool({
       // Tableau pour stocker nos promesses d'appels API
       const promises: Promise<void>[] = [];
 
+      const cacheKey = `${requireEnv("GITHUB_REPO_METADATA_CACHE_KEY_PREFIX")}_${repoName}`;
+
+      const cachedData = await redis.get<Record<string, any>>(cacheKey);
+
       // 1. Action: Infos générales
       if (actions.includes("info")) {
         const promise = (async () => {
           const url = resolveGithubUrl("repo_info", { repoName });
+          if (cachedData && cachedData.info) {
+            console.log("Données mises en cache trouvées pour les infos de depot courant");
+            results.info = cachedData.info
+            return
+          }
           const rawData = await fetchFromGithub(url);
           results.info = extractRepoMetadata(rawData);
+          const combinedData: Record<string, any> = {...(cachedData ?? {}), info: results.info}
+          await redis.set(cacheKey, JSON.stringify(combinedData), { ex: Number(requireEnv("GITHUB_CACHE_TTL")) });
         })();
         promises.push(promise);
       }
@@ -42,8 +55,15 @@ export const analyzeGithubRepoTool = new DynamicStructuredTool({
       if (actions.includes("commits")) {
         const promise = (async () => {
           const url = resolveGithubUrl("repo_commits", { repoName });
+          if (cachedData?.commits) {
+            results.commits = cachedData.commits;
+            console.log("Données mises en cache trouvées pour les commits de depot courant");
+            return;
+          }
           const rawData = await fetchFromGithub(url);
           results.commits = extractRepoCommits(rawData);
+          const combinedData: Record<string, any> = {...(cachedData ?? {}),commits: results.commits,};
+          await redis.set(cacheKey, JSON.stringify(combinedData), { ex: Number(requireEnv("GITHUB_CACHE_TTL")) })
         })();
         promises.push(promise);
       }
@@ -52,8 +72,15 @@ export const analyzeGithubRepoTool = new DynamicStructuredTool({
       if (actions.includes("languages")) {
         const promise = (async () => {
           const url = resolveGithubUrl("repo_languages", { repoName });
+          if (cachedData?.languages) {
+            console.log("Données mises en cache trouvées pour les languages de depot courant");
+            results.languages = cachedData.languages;
+            return;
+          }
           const rawData = await fetchFromGithub(url);
           results.languages = extractRepoLanguages(rawData);
+          const combinedData: Record<string, any> = {...(cachedData ?? {}),languages: results.languages,};
+          await redis.set(cacheKey,JSON.stringify(combinedData),{ ex: Number(requireEnv("GITHUB_CACHE_TTL")) });
         })();
         promises.push(promise);
       }

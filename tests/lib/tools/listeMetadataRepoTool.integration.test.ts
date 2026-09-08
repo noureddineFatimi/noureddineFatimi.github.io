@@ -1,15 +1,26 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const redisMock = vi.hoisted(() => ({
+  get: vi.fn(),
+  set: vi.fn(),
+}));
+
+vi.mock("../../../lib/utils", () => ({
+  requireEnv: vi.fn((name: string) => {
+    if (name === "GITHUB_REPOS_CACHE_KEY") return "fake-key";
+    if (name === "GITHUB_CACHE_TTL") return "3600";
+    return `mock-${name}`;
+  }),
+  redis: redisMock,
+}));
+
 import { analyzeGithubRepoTool } from "../../../lib/tools/listeMetadataRepoTool";
 
 describe("analyzeGithubRepoTool - intégration", () => {
   beforeEach(() => {
-    vi.stubEnv("GITHUB_USERNAME", "octocat");
-    vi.stubEnv("GITHUB_PERSONAL_ACCESS_TOKEN", "fake-token");
-    vi.stubEnv("GITHUB_API_BASE_URL", "https://api.github.com");
-    vi.stubEnv("READING_GITHUB_FILE_MAX_FILE_LENGTH", "1000000");
-    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://redis-url.upstash.io")
-    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "fake-token")
+    vi.clearAllMocks()
+    redisMock.get.mockResolvedValue(null);
+    redisMock.set.mockResolvedValue("OK");  
   });
 // stubenv permet de substituer temporairementles variables d'environnement chargées depuis env.local.
 // Les varaiables d'environnement dont chargées depuis env.local puisque on a dotenv dans les fichiers des fonctions a tester. Mais dans GitHub Actions, les variables d'environnement ne sont pas définies dans le fichier .env.local, car ce fichier n'est pas inclus dans le dépôt pour des raisons de sécurité. Donc, on doit les stubber dans les tests pour les exister et à la fois définir comme le test exige.
@@ -26,8 +37,8 @@ describe("analyzeGithubRepoTool - intégration", () => {
           json: async () => [
             {
               sha: "aaa111",
-              url: "https://api.github.com/repos/octocat/portfolio/commits/aaa111",
-              html_url: "https://github.com/octocat/portfolio/commit/aaa111",
+              url: "https://api.github.com/repos/noureddineFatimi/portfolio/commits/aaa111",
+              html_url: "https://github.com/noureddineFatimi/portfolio/commit/aaa111",
               commit: {
                 author: {
                   name: "Alice",
@@ -39,8 +50,8 @@ describe("analyzeGithubRepoTool - intégration", () => {
               parents: [
                 {
                   sha: "bbb222",
-                  url: "https://api.github.com/repos/octocat/portfolio/commits/bbb222",
-                  html_url: "https://github.com/octocat/portfolio/commit/bbb222",
+                  url: "https://api.github.com/repos/noureddineFatimi/portfolio/commits/bbb222",
+                  html_url: "https://github.com/noureddineFatimi/portfolio/commit/bbb222",
                 },
               ],
             },
@@ -58,17 +69,17 @@ describe("analyzeGithubRepoTool - intégration", () => {
         };
       }
 
-      if (url.includes("/repos/octocat/portfolio")) {
+      if (url.includes("/repos/noureddineFatimi/portfolio")) {
       return {
           ok: true,
           json: async () => ({
             id: 42,
             name: "portfolio",
-            full_name: "octocat/portfolio",
+            full_name: "noureddineFatimi/portfolio",
             private: false,
             description: "Mon portfolio",
             fork: false,
-            html_url: "https://github.com/octocat/portfolio",
+            html_url: "https://github.com/noureddineFatimi/portfolio",
             updated_at: "2025-01-01T00:00:00Z",
             created_at: "2024-01-01T00:00:00Z",
             pushed_at: "2025-01-15T00:00:00Z",
@@ -100,7 +111,7 @@ describe("analyzeGithubRepoTool - intégration", () => {
     expect(parsed.info).toMatchObject({
       id: 42,
       name: "portfolio",
-      full_name: "octocat/portfolio",
+      full_name: "noureddineFatimi/portfolio",
       private: false,
       language: "TypeScript",
     });
@@ -108,8 +119,8 @@ describe("analyzeGithubRepoTool - intégration", () => {
     expect(parsed.commits).toEqual([
       {
         sha: "aaa111",
-        url: "https://api.github.com/repos/octocat/portfolio/commits/aaa111",
-        html_url: "https://github.com/octocat/portfolio/commit/aaa111",
+        url: "https://api.github.com/repos/noureddineFatimi/portfolio/commits/aaa111",
+        html_url: "https://github.com/noureddineFatimi/portfolio/commit/aaa111",
         commit: {
           author: {
             name: "Alice",
@@ -121,8 +132,8 @@ describe("analyzeGithubRepoTool - intégration", () => {
         parents: [
           {
             sha: "bbb222",
-            url: "https://api.github.com/repos/octocat/portfolio/commits/bbb222",
-            html_url: "https://github.com/octocat/portfolio/commit/bbb222",
+            url: "https://api.github.com/repos/noureddineFatimi/portfolio/commits/bbb222",
+            html_url: "https://github.com/noureddineFatimi/portfolio/commit/bbb222",
           },
         ],
       },
@@ -135,26 +146,26 @@ describe("analyzeGithubRepoTool - intégration", () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(3);
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.github.com/repos/octocat/portfolio",
+      "https://api.github.com/repos/noureddineFatimi/portfolio",
       expect.objectContaining({
         headers: expect.objectContaining({
-          Authorization: "Bearer fake-token",
+          Authorization: "Bearer mock-GITHUB_PERSONAL_ACCESS_TOKEN",
         }),
       }),
     );
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.github.com/repos/octocat/portfolio/commits?per_page=5",
+      "https://api.github.com/repos/noureddineFatimi/portfolio/commits?per_page=5",
       expect.objectContaining({
         headers: expect.objectContaining({
-          Authorization: "Bearer fake-token",
+          Authorization: "Bearer mock-GITHUB_PERSONAL_ACCESS_TOKEN",
         }),
       }),
     );
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.github.com/repos/octocat/portfolio/languages",
+      "https://api.github.com/repos/noureddineFatimi/portfolio/languages",
       expect.objectContaining({
         headers: expect.objectContaining({
-          Authorization: "Bearer fake-token",
+          Authorization: "Bearer mock-GITHUB_PERSONAL_ACCESS_TOKEN",
         }),
       }),
     );

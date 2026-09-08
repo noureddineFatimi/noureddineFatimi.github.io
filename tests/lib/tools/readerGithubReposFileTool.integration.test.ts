@@ -1,15 +1,26 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const redisMock = vi.hoisted(() => ({
+  get: vi.fn(),
+  set: vi.fn(),
+}));
+
+vi.mock("../../../lib/utils", () => ({
+  requireEnv: vi.fn((name: string) => {
+    if (name === "GITHUB_REPOS_CACHE_KEY") return "fake-key";
+    if (name === "GITHUB_CACHE_TTL") return "3600";
+    return `mock-${name}`;
+  }),
+  redis: redisMock,
+}));
+
 import { readGithubFilesTool } from "../../../lib/tools/readerGithubReposFileTool";
 
 describe("readGithubFilesTool - intégration", () => {
   beforeEach(() => {
-    vi.stubEnv("GITHUB_USERNAME", "octocat");
-    vi.stubEnv("GITHUB_PERSONAL_ACCESS_TOKEN", "fake-token");
-    vi.stubEnv("GITHUB_API_BASE_URL", "https://api.github.com");
-    vi.stubEnv("READING_GITHUB_FILE_MAX_FILE_LENGTH", "1000000");
-    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://redis-url.upstash.io")
-    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "fake-token")
+    vi.clearAllMocks()
+    redisMock.get.mockResolvedValue(null);
+    redisMock.set.mockResolvedValue("OK");  
   });
 
   afterEach(() => {
@@ -26,8 +37,8 @@ describe("readGithubFilesTool - intégration", () => {
             path: "README.md",
             encoding: "base64",
             content: Buffer.from("# Portfolio\n\nBienvenue").toString("base64"),
-            url: "https://api.github.com/repos/octocat/portfolio/contents/README.md",
-            html_url: "https://github.com/octocat/portfolio/blob/main/README.md",
+            url: "https://api.github.com/repos/noureddineFatimi/portfolio/contents/README.md",
+            html_url: "https://github.com/noureddineFatimi/portfolio/blob/main/README.md",
           }),
         };
       }
@@ -39,8 +50,8 @@ describe("readGithubFilesTool - intégration", () => {
             path: "package.json",
             encoding: "base64",
             content: Buffer.from('{"name":"portfolio"}').toString("base64"),
-            url: "https://api.github.com/repos/octocat/portfolio/contents/package.json",
-            html_url: "https://github.com/octocat/portfolio/blob/main/package.json",
+            url: "https://api.github.com/repos/noureddineFatimi/portfolio/contents/package.json",
+            html_url: "https://github.com/noureddineFatimi/portfolio/blob/main/package.json",
           }),
         };
       }
@@ -75,18 +86,18 @@ describe("readGithubFilesTool - intégration", () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.github.com/repos/octocat/portfolio/contents/README.md",
+      "https://api.github.com/repos/noureddineFatimi/portfolio/contents/README.md",
       expect.objectContaining({
         headers: expect.objectContaining({
-          Authorization: "Bearer fake-token",
+          Authorization: "Bearer mock-GITHUB_PERSONAL_ACCESS_TOKEN",
         }),
       }),
     );
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.github.com/repos/octocat/portfolio/contents/package.json",
+      "https://api.github.com/repos/noureddineFatimi/portfolio/contents/package.json",
       expect.objectContaining({
         headers: expect.objectContaining({
-          Authorization: "Bearer fake-token",
+          Authorization: "Bearer mock-GITHUB_PERSONAL_ACCESS_TOKEN",
         }),
       }),
     );

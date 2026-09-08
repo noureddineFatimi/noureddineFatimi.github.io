@@ -23,3 +23,5 @@ portfolioRetrieverTool.test.ts
 logs/
 
 out/
+
+app/api/

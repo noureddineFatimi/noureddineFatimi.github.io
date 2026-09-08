@@ -11,8 +11,11 @@ vi.mock("../../../lib/utils", () => ({
     if (name === "GITHUB_CACHE_TTL") return "3600";
     return `mock-${name}`;
   }),
-  redis: redisMock,
 }));
+
+vi.mock("../../../lib/redis", () => ({
+  redis: redisMock,
+}))
 
 import { readGithubFilesTool } from "../../../lib/tools/readerGithubReposFileTool";
 

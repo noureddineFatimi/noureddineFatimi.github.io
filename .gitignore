@@ -21,3 +21,5 @@ portfolioRetrieverTool.test.ts
 
 #Logs
 logs/
+
+out/

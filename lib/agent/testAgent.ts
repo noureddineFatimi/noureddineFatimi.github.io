@@ -12,8 +12,9 @@ import {
   HumanMessage,
   type BaseMessage,
 } from "@langchain/core/messages";
-import { requireEnv, redis } from "../utils";
+import { requireEnv } from "../utils";
 import {getMessagesFromRedisSession, getLastMessages, setMessagesInRedisSession, initLogger, log} from "./utils"
+import { redis } from "../redis";
 
 export async function chatWithAgentInStreamingMode(agent: ReactAgent, question: string, sessionId: string) {
   try {

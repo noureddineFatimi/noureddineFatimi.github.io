@@ -3,7 +3,8 @@ import { z } from "zod";
 import { resolveGithubUrl } from "../github/urlResolver";
 import { fetchFromGithub } from "../github/client";
 import { extractRepoTree } from "../github/parsers";
-import { requireEnv, redis } from "../utils";
+import { requireEnv } from "../utils";
+import { redis } from "../redis";
 
 export const getGithubTreeTool = new DynamicStructuredTool({
   name: "recuperer_arborescence_repo",

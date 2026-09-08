@@ -12,9 +12,10 @@ import {
   mapChatMessagesToStoredMessages,
 } from "@langchain/core/messages";
 import { toUIMessageStream } from "@ai-sdk/langchain";
-import { requireEnv, redis } from "../utils";
+import { requireEnv } from "../utils";
 import { AgentSession } from "./types";
 import { ReactAgent } from "langchain";
+import { redis } from "../redis";
 
 export async function initLogger(agentLogsFolderPath: string, runId: number, logFile: string) {
   await mkdir(agentLogsFolderPath, { recursive: true });

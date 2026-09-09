@@ -25,15 +25,18 @@ function getSessionId() {
 export default function ChatPage() {
 	const [sessionId, setSessionId] = useState('')
 	const [input, setInput] = useState('')
+	const [loading, setLoading] = useState(true)
 
 	useEffect(() => {
-		setSessionId(getSessionId())
+		setSessionId(getSessionId())				
 	}, [])
 
-	const { messages, sendMessage, status, error } = useChat({
+	const { messages, setMessages, sendMessage, status, error, id } = useChat({
+		id: sessionId ,
 		transport: new DefaultChatTransport({
 			api: '/api/chat',
 			prepareSendMessagesRequest: ({ messages: pendingMessages }) => {
+				console.log(messages)
 				const lastMessage = pendingMessages[pendingMessages.length - 1]
 				const question = lastMessage?.parts
 					.filter((part) => part.type === 'text')
@@ -47,8 +50,16 @@ export default function ChatPage() {
 		}),
 	})
 
-	const isStreaming = status === 'submitted' || status === 'streaming'
+	useEffect(() => {
+		if (!sessionId) return
+		fetch(`/api/chat?sessionId=${sessionId}`)
+			.then((res) => res.json())
+			.then(setMessages)
+			.finally(() => setLoading(false));
+	}, [sessionId]);
 
+	const isStreaming = status === 'submitted' || status === 'streaming'
+// id = error kbir f chat ui ya3ni handle des erreur, stream de reponse fin ki kon, upstach rate limit, setmessages
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
 		const question = input.trim()
@@ -85,7 +96,7 @@ export default function ChatPage() {
 						</div>
 					)}
 
-					{messages.map((message) => {
+					{loading ? <div>Chargement des messages...</div> : messages.map((message) => {
 						const text = message.parts
 							.filter((part) => part.type === 'text')
 							.map((part) => part.text)

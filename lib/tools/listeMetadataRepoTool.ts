@@ -45,6 +45,9 @@ export const analyzeGithubRepoTool = new DynamicStructuredTool({
           }
           const rawData = await fetchFromGithub(url);
           results.info = extractRepoMetadata(rawData);
+          if ('error' in results.info) {
+            return
+          }
           const combinedData: Record<string, any> = {...(cachedData ?? {}), info: results.info}
           await redis.set(cacheKey, JSON.stringify(combinedData), { ex: Number(requireEnv("GITHUB_CACHE_TTL")) });
         })();
@@ -62,6 +65,9 @@ export const analyzeGithubRepoTool = new DynamicStructuredTool({
           }
           const rawData = await fetchFromGithub(url);
           results.commits = extractRepoCommits(rawData);
+          if ('error' in results.commits) {
+            return
+          }
           const combinedData: Record<string, any> = {...(cachedData ?? {}),commits: results.commits,};
           await redis.set(cacheKey, JSON.stringify(combinedData), { ex: Number(requireEnv("GITHUB_CACHE_TTL")) })
         })();
@@ -79,6 +85,9 @@ export const analyzeGithubRepoTool = new DynamicStructuredTool({
           }
           const rawData = await fetchFromGithub(url);
           results.languages = extractRepoLanguages(rawData);
+          if ('error' in results.languages) {
+            return
+          }
           const combinedData: Record<string, any> = {...(cachedData ?? {}),languages: results.languages,};
           await redis.set(cacheKey,JSON.stringify(combinedData),{ ex: Number(requireEnv("GITHUB_CACHE_TTL")) });
         })();

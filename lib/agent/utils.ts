@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
-import { createUIMessageStreamResponse } from "ai";
+import { createUIMessageStreamResponse, UIMessage } from "ai";
 import { appendFile, mkdir } from "fs/promises";
 import {
   mapStoredMessagesToChatMessages,
@@ -88,4 +88,33 @@ export async function handleChatRequest(agent: ReactAgent, question: string, ses
         },
       }),
   });
+}
+
+export async function restoreHistory(sessionId: string): Promise<UIMessage[]>{
+  const redisSession = await redis.get<AgentSession>(`agent-session-${sessionId}`)
+
+  const previousMessages = getMessagesFromRedisSession(redisSession)
+
+  const uIMessages = previousMessages.map((msg, index) =>{
+    const id: UIMessage["id"] = msg.id || `restored-${sessionId}-${index}`
+
+    let role: UIMessage["role"] = "user"
+    if (msg.type === 'ai') {
+      role = 'assistant'; 
+    } else if (msg.type === 'human' ) {
+      role = "user";
+    } else {
+      return null
+    }
+
+    const text = msg.content
+    if(typeof text !== "string") {
+      return null
+    }
+    const parts: UIMessage["parts"] = [{type: "text", text}]
+  
+    return { id, role, parts}
+  })
+
+  return uIMessages.filter(uIMessage => uIMessage !== null)
 }

@@ -3,6 +3,8 @@ import { z } from "zod";
 import { resolveGithubUrl } from "../github/urlResolver";
 import { fetchFromGithub } from "../github/client";
 import { extractFileContent } from "../github/parsers";
+import { requireEnv } from "../utils";
+import { redis } from "../redis";
 
 export const readGithubFilesTool = new DynamicStructuredTool({
   name: "lire_fichiers_repo",
@@ -24,10 +26,28 @@ export const readGithubFilesTool = new DynamicStructuredTool({
       const filePromises = filePaths.map(async (filePath) => {
         try {
           const url = resolveGithubUrl("file_content", { repoName, filePath });
+
+          const cacheKey = `${requireEnv("GITHUB_REPO_FILE_CONTENT_CACHE_KEY_PREFIX")}_${repoName}_${filePath}`;
+          
+          const cachedData = await redis.get(cacheKey);
+
+          if (cachedData) {
+            console.log("Données mises en cache trouvées pour la le contenu dun fichier.");
+            return cachedData
+          }
+
           const rawData = await fetchFromGithub(url);
           
+          const fileContent = extractFileContent(rawData, filePath);
+
+          if ('error' in fileContent) {
+            return fileContent
+          }
+
+          await redis.set(cacheKey, JSON.stringify(fileContent, null, 2), { ex: Number(requireEnv("GITHUB_CACHE_TTL")) });
+
           // Utilisation de notre parseur avec décodage Base64 et troncature
-          return extractFileContent(rawData, filePath);
+          return fileContent
         } catch (err) {
           // Si un fichier échoue (ex: chemin invalide), on ne fait pas crasher les autres
           return { error: `Échec de la récupération pour le fichier '${filePath}'` };

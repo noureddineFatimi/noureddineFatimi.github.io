@@ -5,6 +5,14 @@ const redisMock = vi.hoisted(() => ({
   set: vi.fn(),
 }));
 
+const chatBurstLimitMock = vi.hoisted(() => ({
+  limit: vi.fn()
+}));
+
+const chatDailyLimitMock = vi.hoisted(() => ({
+  limit: vi.fn(),
+}));
+
 vi.mock("../../../lib/utils", () => ({
   requireEnv: vi.fn((name: string) => {
     if (name === "GITHUB_REPOS_CACHE_KEY") return "fake-key";
@@ -15,6 +23,8 @@ vi.mock("../../../lib/utils", () => ({
 
 vi.mock("../../../lib/redis", () => ({
   redis: redisMock,
+  chatBurstLimit: chatBurstLimitMock,
+  chatDailyLimit: chatDailyLimitMock
 }))
 
 import { listGithubReposTool } from "../../../lib/tools/listeGithubReposTool";
@@ -24,6 +34,8 @@ describe("listGithubReposTool - intégration", () => {
     vi.clearAllMocks()
     redisMock.get.mockResolvedValue(null);
     redisMock.set.mockResolvedValue("OK");  
+    chatBurstLimitMock.limit.mockResolvedValue({success: true})
+    chatBurstLimitMock.limit.mockResolvedValue({success: true})
   });
 
   afterEach(() => {

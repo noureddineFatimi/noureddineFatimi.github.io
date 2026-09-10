@@ -20,6 +20,7 @@ export async function createPortfolioAgent() {
     configuration: {
       baseURL: requireEnv("LLM_BASE_URL"),
     },
+    maxTokens:700
   });
 
   return createAgent({

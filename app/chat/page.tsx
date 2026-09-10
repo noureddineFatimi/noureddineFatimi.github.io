@@ -26,17 +26,17 @@ export default function ChatPage() {
 	const [sessionId, setSessionId] = useState('')
 	const [input, setInput] = useState('')
 	const [loading, setLoading] = useState(true)
+	const [historyError, setHistoryError] = useState("")
 
 	useEffect(() => {
 		setSessionId(getSessionId())				
 	}, [])
 
-	const { messages, setMessages, sendMessage, status, error, id } = useChat({
+	const { messages, setMessages, sendMessage, status, error } = useChat({
 		id: sessionId ,
 		transport: new DefaultChatTransport({
 			api: '/api/chat',
 			prepareSendMessagesRequest: ({ messages: pendingMessages }) => {
-				console.log(messages)
 				const lastMessage = pendingMessages[pendingMessages.length - 1]
 				const question = lastMessage?.parts
 					.filter((part) => part.type === 'text')
@@ -47,19 +47,45 @@ export default function ChatPage() {
 					body: { sessionId, question },
 				}
 			},
+			fetch: async (input, init) => {
+				const response = await fetch(input, init);
+				if (response.status === 429) {
+					throw new Error("Rate limit");
+				}
+				return response;
+				},
 		}),
 	})
 
 	useEffect(() => {
 		if (!sessionId) return
-		fetch(`/api/chat?sessionId=${sessionId}`)
-			.then((res) => res.json())
-			.then(setMessages)
-			.finally(() => setLoading(false));
-	}, [sessionId]);
+
+		setHistoryError('')
+		setLoading(true)
+
+		fetch(`/api/chat?sessionId=${encodeURIComponent(sessionId)}`)
+			.then((res) => {
+				if (!res.ok) {
+					throw new Error(
+						`Erreur lors du chargement de l'historique (${res.status})`,
+					)
+				}
+
+				return res.json()
+			})
+			.then((history) => {
+				setMessages(history)
+			})
+			.catch((error) => {
+				console.error('Erreur de chargement (affichage) de l’historique :', error)
+				setHistoryError("Impossible de charger l'historique.")
+			})
+			.finally(() => {
+				setLoading(false)
+			})
+	}, [sessionId])
 
 	const isStreaming = status === 'submitted' || status === 'streaming'
-// id = error kbir f chat ui ya3ni handle des erreur, stream de reponse fin ki kon, upstach rate limit, setmessages
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
 		const question = input.trim()
@@ -73,6 +99,7 @@ export default function ChatPage() {
 
 	return (
 		<main className="min-h-screen bg-[#f6f4ef] px-4 py-8 text-[#20211e] sm:px-6 lg:px-8">
+			{historyError ?? alert(historyError)}
 			<section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-4xl flex-col overflow-hidden rounded-3xl border border-[#d9d5cb] bg-[#fffdf8] shadow-[0_24px_80px_rgba(52,48,37,0.12)]">
 				<header className="border-b border-[#e5e1d8] px-5 py-5 sm:px-8">
 					<div className="flex items-center gap-3">
@@ -116,8 +143,7 @@ export default function ChatPage() {
 							</div>
 						)
 					})}
-
-					{error && <p className="text-sm text-red-700">Erreur : {error.message}</p>}
+					{error && (error.message === "Rate limit" ? <p className="text-sm text-red-700">Trop de tentatives, ressayer plus tard</p> : <p className="text-sm text-red-700">Erreur, Veuillez ressayer plus tard</p>)}
 				</div>
 
 				<form onSubmit={handleSubmit} className="border-t border-[#e5e1d8] p-4 sm:p-6">
@@ -134,13 +160,13 @@ export default function ChatPage() {
 							placeholder="Écrivez votre question..."
 							rows={1}
 							maxLength={1000}
-							disabled={!sessionId || isStreaming}
+							disabled={!sessionId || isStreaming || loading || (error && error.message === "Rate limit")}
 							className="min-h-10 flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-[#9b978d] disabled:cursor-not-allowed"
 							aria-label="Question"
 						/>
 						<button
 							type="submit"
-							disabled={!input.trim() || !sessionId || isStreaming}
+							disabled={!input.trim() || !sessionId || isStreaming || loading || (error && error.message === "Rate limit")}
 							className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#193c3c] text-[#fffdf8] transition hover:bg-[#285858] disabled:cursor-not-allowed disabled:opacity-40"
 							aria-label="Envoyer la question"
 						>

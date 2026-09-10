@@ -15,7 +15,8 @@ import { toUIMessageStream } from "@ai-sdk/langchain";
 import { requireEnv } from "../utils";
 import { AgentSession } from "./types";
 import { ReactAgent } from "langchain";
-import { redis } from "../redis";
+import { redis, chatBurstLimit, chatDailyLimit } from "../redis";
+import { convertServerPatchToFullTree } from "next/dist/client/components/segment-cache/navigation";
 
 export async function initLogger(agentLogsFolderPath: string, runId: number, logFile: string) {
   await mkdir(agentLogsFolderPath, { recursive: true });
@@ -76,7 +77,6 @@ export async function handleChatRequest(agent: ReactAgent, question: string, ses
   const previousMessages = getMessagesFromRedisSession(redisSession); // historique "propre" : que des tours human/ai
   const humanMessage = new HumanMessage(question);
   const messagesForModel = getLastMessages([...previousMessages, humanMessage]);
-
   const stream = agent.streamEvents({ messages: messagesForModel }, { version: "v2" });
 
   return createUIMessageStreamResponse({
@@ -117,4 +117,19 @@ export async function restoreHistory(sessionId: string): Promise<UIMessage[]>{
   })
 
   return uIMessages.filter(uIMessage => uIMessage !== null)
+}
+
+export function getClientIp(request: Request): string {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  return forwardedFor?.split(",")[0]?.trim() ?? "unknown";
+}
+
+export async function isHasReachedRateLimit(ipAddress: string): Promise<boolean> {
+  const [burst, daily] = await Promise.all([
+    chatBurstLimit.limit(ipAddress),
+    chatDailyLimit.limit(ipAddress),
+  ]);
+
+  const blocked = !burst.success ? true : !daily.success ? true : false;
+  return blocked
 }

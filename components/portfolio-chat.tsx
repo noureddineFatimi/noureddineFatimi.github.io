@@ -127,7 +127,7 @@ export function PortfolioChat({ variant = 'modal', initialOpen = false }: Portfo
         </div> 
         : 
         messages.length === 0 ? 
-        <div className="rounded-2xl border border-dashed border-border px-4 py-6 text-center text-xs leading-5 text-muted-foreground">Ask me about my projects, experience, or skills.
+        <div className="rounded-2xl px-4 py-6 text-center text-xs leading-5" style={{width:"100%", height:"100%",display:"flex", flexDirection:"column",justifyContent:"center", alignItems:"center", color:"white", fontWeight:"bold", fontSize:"2rem", lineHeight:"2rem"}}> <div>Ask me about my projects, experience, or skills.</div>
         </div> 
         : 
         messages.map((message) => 

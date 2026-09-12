@@ -6,6 +6,7 @@ import { Projects } from '@/components/projects'
 import { Certifications } from '@/components/certifications'
 import { Contact } from '@/components/contact'
 import { Footer } from '@/components/footer'
+import PortfolioChat from '@/components/portfolio-chat'
 
 export default function Home() {
   return (
@@ -18,6 +19,7 @@ export default function Home() {
       <Certifications />
       <Contact />
       <Footer />
+      <PortfolioChat variant="modal" />
     </main>
   )
 }

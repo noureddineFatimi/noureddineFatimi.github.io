@@ -109,8 +109,8 @@ export function PortfolioChat({ variant = 'modal', initialOpen = false }: Portfo
   }
 
   const panel = (
-    <section aria-label="Portfolio assistant" className={`flex w-full flex-col overflow-hidden rounded-3xl border border-border bg-card text-card-foreground shadow-[0_24px_80px_rgba(69,44,130,0.18)] ${variant === 'modal' ? 'h-full max-w-none' : 'h-[min(620px,calc(100dvh-2rem))] max-w-[450px]'}`}>
-      <header className="flex flex-row gap-3 items-center border-b border-border bg-secondary px-4 py-3 text-primary-foreground">
+    <section aria-label="Portfolio assistant" className={`flex w-full flex-col overflow-hidden rounded-3xl border border-border bg-card text-card-foreground shadow-[0_24px_80px_rgba(69,44,130,0.18)] ${variant === 'modal' ? 'h-full max-w-none' : 'h-[min(620px,calc(100dvh-2rem))] max-w-[450px]'}`}> 
+      <header className="flex flex-row gap-3 items-center border-b border-border bg-background px-4 py-3 text-primary-foreground">
         
           <div className='text-accent'><Sparkles className="size-4" aria-hidden="true" /></div>
           <p className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-accent"> Portfolio AI assistant</p>
@@ -132,7 +132,7 @@ export function PortfolioChat({ variant = 'modal', initialOpen = false }: Portfo
         : 
         messages.map((message) => 
         <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-          <div className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2.5 text-[0.8125rem] leading-5 ${message.role === 'user' ? 'rounded-br-sm bg-primary text-secondary-foreground' : 'rounded-bl-sm bg-secondary text-secondary-foreground'}`}>
+          <div className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2.5 text-[0.8125rem] leading-5 ${message.role === 'user' ? 'rounded-br-sm bg-primary text-white' : 'rounded-bl-sm bg-secondary text-secondary-foreground'}`}>
             <ReactMarkdown>{messageText(message) || (isStreaming && message.role === 'assistant' ? '...' : '')}</ReactMarkdown>
           </div>
         </div>)}
@@ -157,12 +157,12 @@ export function PortfolioChat({ variant = 'modal', initialOpen = false }: Portfo
 
   if (variant === 'embedded') return panel
   return <>
-    <div className={`fixed inset-0 z-[60] bg-[#193c3c]/10 backdrop-blur-[2px] transition-opacity sm:bg-transparent sm:backdrop-blur-0 ${open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`} onClick={() => setOpen(false)} aria-hidden={!open}>
+    <div className={`fixed inset-0 z-[70] bg-[#193c3c]/10 backdrop-blur-[2px] transition-opacity sm:bg-transparent sm:backdrop-blur-0 ${open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`} onClick={() => setOpen(false)} aria-hidden={!open}>
       <div className="absolute inset-4 sm:inset-x-[8%] sm:top-8 sm:bottom-10" onClick={(event) => event.stopPropagation()}>
         {panel}
       </div>
     </div>
-      <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-controls="portfolio-assistant" aria-label={open ? 'Close portfolio assistant' : 'Open portfolio assistant'} className="fixed bottom-5 right-5 z-[70] flex size-16 items-center justify-center rounded-xl bg-primary shadow-[0_12px_30px_rgba(25,60,60,0.3)] transition hover:-translate-y-1 hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6d58d]">
+      <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-controls="portfolio-assistant" aria-label={open ? 'Close portfolio assistant' : 'Open portfolio assistant'} className="fixed bottom-5 right-5 z-[60] flex size-16 items-center justify-center rounded-xl bg-primary shadow-[0_12px_30px_rgba(25,60,60,0.3)] transition hover:-translate-y-1 hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6d58d] text-white">
         <Sparkles className="size-6" aria-hidden="true" />
       </button>
   </>

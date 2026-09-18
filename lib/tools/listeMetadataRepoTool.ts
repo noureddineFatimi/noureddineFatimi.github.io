@@ -30,7 +30,7 @@ export const analyzeGithubRepoTool = new DynamicStructuredTool({
       // Tableau pour stocker nos promesses d'appels API
       const promises: Promise<void>[] = [];
 
-      const cacheKey = `${requireEnv("GITHUB_REPO_METADATA_CACHE_KEY_PREFIX")}_${repoName}`;
+      const cacheKey = `${requireEnv("REPO_METADATA_CACHE_KEY_PREFIX_GITHUB")}_${repoName}`;
 
       const cachedData = await redis.get<Record<string, any>>(cacheKey);
 
@@ -49,7 +49,7 @@ export const analyzeGithubRepoTool = new DynamicStructuredTool({
             return
           }
           const combinedData: Record<string, any> = {...(cachedData ?? {}), info: results.info}
-          await redis.set(cacheKey, JSON.stringify(combinedData), { ex: Number(requireEnv("GITHUB_CACHE_TTL")) });
+          await redis.set(cacheKey, JSON.stringify(combinedData), { ex: Number(requireEnv("CACHE_TTL_GITHUB")) });
         })();
         promises.push(promise);
       }
@@ -69,7 +69,7 @@ export const analyzeGithubRepoTool = new DynamicStructuredTool({
             return
           }
           const combinedData: Record<string, any> = {...(cachedData ?? {}),commits: results.commits,};
-          await redis.set(cacheKey, JSON.stringify(combinedData), { ex: Number(requireEnv("GITHUB_CACHE_TTL")) })
+          await redis.set(cacheKey, JSON.stringify(combinedData), { ex: Number(requireEnv("CACHE_TTL_GITHUB")) })
         })();
         promises.push(promise);
       }
@@ -89,7 +89,7 @@ export const analyzeGithubRepoTool = new DynamicStructuredTool({
             return
           }
           const combinedData: Record<string, any> = {...(cachedData ?? {}),languages: results.languages,};
-          await redis.set(cacheKey,JSON.stringify(combinedData),{ ex: Number(requireEnv("GITHUB_CACHE_TTL")) });
+          await redis.set(cacheKey,JSON.stringify(combinedData),{ ex: Number(requireEnv("CACHE_TTL_GITHUB")) });
         })();
         promises.push(promise);
       }

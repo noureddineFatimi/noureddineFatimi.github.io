@@ -6,7 +6,7 @@ import { extractMinimalRepos } from "../github/parsers";
 import { requireEnv } from "../utils";
 import { redis } from "../redis";
 
-const cacheKey = requireEnv("GITHUB_REPOS_CACHE_KEY");
+const cacheKey = requireEnv("REPOS_CACHE_KEY_GITHUB");
 
 export const listGithubReposTool = new DynamicStructuredTool({
   name: "lister_depots_github",
@@ -42,7 +42,7 @@ export const listGithubReposTool = new DynamicStructuredTool({
       const parsedReposString = JSON.stringify(parsedRepos, null, 2);
 
       // 4. Mise en cache des résultats pour 2 heure
-      await redis.set(cacheKey, parsedReposString, { ex: Number(requireEnv("GITHUB_CACHE_TTL")) });
+      await redis.set(cacheKey, parsedReposString, { ex: Number(requireEnv("CACHE_TTL_GITHUB")) });
 
       // Si tout va bien, on convertit notre tableau épuré en chaîne de caractères pour le LLM
       return parsedReposString;

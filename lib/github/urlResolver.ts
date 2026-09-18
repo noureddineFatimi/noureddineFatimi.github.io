@@ -6,15 +6,15 @@ import { GithubAction, GithubResolverParams } from "./types";
  * Génère l'URL correcte pour l'API GitHub en fonction de l'action demandée.
  */
 export function resolveGithubUrl(action: GithubAction, params?: GithubResolverParams): string {
-  const baseUrl = process.env.GITHUB_API_BASE_URL || "https://api.github.com"; // Valeur par défaut si la variable d'environnement est absente
-  const owner = process.env.GITHUB_USERNAME || "noureddineFatimi"; // Valeur par défaut si la variable d'environnement est absente
+  const baseUrl = process.env.API_BASE_URL_GITHUB || "https://api.github.com"; // Valeur par défaut si la variable d'environnement est absente
+  const owner = process.env.USERNAME_GITHUB || "noureddineFatimi"; // Valeur par défaut si la variable d'environnement est absente
   let main_branch = process.env.MAIN_GITHUB_REPOSITORIES_BRANCH || "main"; // Valeur par défaut si la variable d'environnement est absente
   main_branch = main_branch.trim() || "main"; // Si la variable est vide ou ne contient que des espaces, on utilise "main"
 
   // L'action list_repos peut utiliser le token global (/user/repos), 
   // mais pour cibler spécifiquement tes dépôts publics/privés, utiliser l'owner est plus robuste.
   if (!owner) {
-    throw new Error("Erreur Critique : GITHUB_USERNAME n'est pas défini dans les variables d'environnement.");
+    throw new Error("Erreur Critique : USERNAME_GITHUB n'est pas défini dans les variables d'environnement.");
   }
 
   switch (action) {

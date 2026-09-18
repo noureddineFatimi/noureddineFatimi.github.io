@@ -9,7 +9,7 @@ export async function fetchFromGithub(url: string) {
     const response = await fetch(url, {
       // Configuration des headers obligatoires de GitHub
       headers: {
-        "Authorization": `Bearer ${requireEnv("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+        "Authorization": `Bearer ${requireEnv("PERSONAL_ACCESS_TOKEN_GITHUB")}`,
         "Accept": "application/vnd.github.v3+json",
         "X-GitHub-Api-Version": "2022-11-28", // Fixer la version est une bonne pratique
       },

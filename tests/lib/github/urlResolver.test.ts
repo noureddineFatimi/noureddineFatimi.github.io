@@ -4,15 +4,15 @@ import { resolveGithubUrl } from "../../../lib/github/urlResolver";
 
 describe("resolveGithubUrl", () => {
   beforeEach(() => {
-    process.env.GITHUB_USERNAME = "alice";
+    process.env.USERNAME_GITHUB = "alice";
     process.env.MAIN_GITHUB_REPOSITORIES_BRANCH = "main";
-    process.env.GITHUB_API_BASE_URL = "https://api.github.com";
+    process.env.API_BASE_URL_GITHUB = "https://api.github.com";
   });
 
   afterEach(() => {
-    delete process.env.GITHUB_USERNAME;
+    delete process.env.USERNAME_GITHUB;
     delete process.env.MAIN_GITHUB_REPOSITORIES_BRANCH;
-    delete process.env.GITHUB_API_BASE_URL;
+    delete process.env.API_BASE_URL_GITHUB;
   });
 
   it("génère l’URL pour list_repos", () => {
@@ -54,8 +54,8 @@ describe("resolveGithubUrl", () => {
     );
   });
 
-  it("utilise un username par defaut si GITHUB_USERNAME est absent", () => {
-    delete process.env.GITHUB_USERNAME;
+  it("utilise un username par defaut si USERNAME_GITHUB est absent", () => {
+    delete process.env.USERNAME_GITHUB;
 
     expect(resolveGithubUrl("list_repos")).toBe(
       "https://api.github.com/users/noureddineFatimi/repos?sort=updated&per_page=100"

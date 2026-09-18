@@ -7,8 +7,8 @@ const redisMock = vi.hoisted(() => ({
 
 vi.mock("../../../lib/utils", () => ({
   requireEnv: vi.fn((name: string) => {
-    if (name === "GITHUB_REPOS_CACHE_KEY") return "fake-key";
-    if (name === "GITHUB_CACHE_TTL") return "3600";
+    if (name === "REPOS_CACHE_KEY_GITHUB") return "fake-key";
+    if (name === "CACHE_TTL_GITHUB") return "3600";
     return `mock-${name}`;
   }),
 }));
@@ -103,7 +103,7 @@ describe("getGithubTreeTool", () => {
 
   it("gère les erreurs exceptionnelles et retourne toujours une chaîne JSON", async () => {
     vi.mocked(resolveGithubUrl).mockImplementation(() => {
-      throw new Error("GITHUB_USERNAME manquant");
+      throw new Error("USERNAME_GITHUB manquant");
     });
 
     const result = await getGithubTreeTool.invoke({ repoName: "portfolio" });

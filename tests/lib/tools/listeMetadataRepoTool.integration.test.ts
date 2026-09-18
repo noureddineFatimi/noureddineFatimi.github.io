@@ -7,8 +7,8 @@ const redisMock = vi.hoisted(() => ({
 
 vi.mock("../../../lib/utils", () => ({
   requireEnv: vi.fn((name: string) => {
-    if (name === "GITHUB_REPOS_CACHE_KEY") return "fake-key";
-    if (name === "GITHUB_CACHE_TTL") return "3600";
+    if (name === "REPOS_CACHE_KEY_GITHUB") return "fake-key";
+    if (name === "CACHE_TTL_GITHUB") return "3600";
     return `mock-${name}`;
   }),
 }));
@@ -152,7 +152,7 @@ describe("analyzeGithubRepoTool - intégration", () => {
       "https://api.github.com/repos/noureddineFatimi/portfolio",
       expect.objectContaining({
         headers: expect.objectContaining({
-          Authorization: "Bearer mock-GITHUB_PERSONAL_ACCESS_TOKEN",
+          Authorization: "Bearer mock-PERSONAL_ACCESS_TOKEN_GITHUB",
         }),
       }),
     );
@@ -160,7 +160,7 @@ describe("analyzeGithubRepoTool - intégration", () => {
       "https://api.github.com/repos/noureddineFatimi/portfolio/commits?per_page=5",
       expect.objectContaining({
         headers: expect.objectContaining({
-          Authorization: "Bearer mock-GITHUB_PERSONAL_ACCESS_TOKEN",
+          Authorization: "Bearer mock-PERSONAL_ACCESS_TOKEN_GITHUB",
         }),
       }),
     );
@@ -168,7 +168,7 @@ describe("analyzeGithubRepoTool - intégration", () => {
       "https://api.github.com/repos/noureddineFatimi/portfolio/languages",
       expect.objectContaining({
         headers: expect.objectContaining({
-          Authorization: "Bearer mock-GITHUB_PERSONAL_ACCESS_TOKEN",
+          Authorization: "Bearer mock-PERSONAL_ACCESS_TOKEN_GITHUB",
         }),
       }),
     );

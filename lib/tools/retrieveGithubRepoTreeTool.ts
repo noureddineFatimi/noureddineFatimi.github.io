@@ -19,7 +19,7 @@ export const getGithubTreeTool = new DynamicStructuredTool({
       // 1. Résolution de l'URL
       const url = resolveGithubUrl("repo_tree", { repoName });
 
-      const cacheKey = `${requireEnv("GITHUB_REPO_TREE_CACHE_KEY_PREFIX")}_${repoName}`;
+      const cacheKey = `${requireEnv("REPO_TREE_CACHE_KEY_PREFIX_GITHUB")}_${repoName}`;
 
       const cachedData = await redis.get(cacheKey);
 
@@ -41,7 +41,7 @@ export const getGithubTreeTool = new DynamicStructuredTool({
       const treeDataString = JSON.stringify(treeData, null, 2);
 
       // 4. Mise en cache des résultats pour 2 heures
-      await redis.set(cacheKey, treeDataString, { ex: Number(requireEnv("GITHUB_CACHE_TTL")) });
+      await redis.set(cacheKey, treeDataString, { ex: Number(requireEnv("CACHE_TTL_GITHUB")) });
 
       // On renvoie le tout formaté pour le LLM
       return treeDataString;

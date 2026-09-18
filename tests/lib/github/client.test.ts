@@ -5,20 +5,20 @@ const loadClient = async () => import("../../../lib/github/client");
 describe("fetchFromGithub", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", vi.fn());
-    process.env.GITHUB_PERSONAL_ACCESS_TOKEN = "test-token";
+    process.env.PERSONAL_ACCESS_TOKEN_GITHUB = "test-token";
     process.env.UPSTASH_REDIS_REST_URL = "https://redis-url.com";
     process.env.UPSTASH_REDIS_REST_TOKEN = "test-token";
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
-    delete process.env.GITHUB_PERSONAL_ACCESS_TOKEN;
+    delete process.env.PERSONAL_ACCESS_TOKEN_GITHUB;
     vi.clearAllMocks();
   });
 
   it("retourne un message d'erreur si le token est absent", async () => {
     const { fetchFromGithub } = await loadClient();
-    delete process.env.GITHUB_PERSONAL_ACCESS_TOKEN;
+    delete process.env.PERSONAL_ACCESS_TOKEN_GITHUB;
 
     await expect(fetchFromGithub("https://api.github.com/repos/alice/portfolio")).resolves.toEqual(
       { error: "Échec de la connexion à l'API GitHub." }

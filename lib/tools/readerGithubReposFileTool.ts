@@ -27,7 +27,7 @@ export const readGithubFilesTool = new DynamicStructuredTool({
         try {
           const url = resolveGithubUrl("file_content", { repoName, filePath });
 
-          const cacheKey = `${requireEnv("GITHUB_REPO_FILE_CONTENT_CACHE_KEY_PREFIX")}_${repoName}_${filePath}`;
+          const cacheKey = `${requireEnv("REPO_FILE_CONTENT_CACHE_KEY_PREFIX_GITHUB")}_${repoName}_${filePath}`;
           
           const cachedData = await redis.get(cacheKey);
 
@@ -44,7 +44,7 @@ export const readGithubFilesTool = new DynamicStructuredTool({
             return fileContent
           }
 
-          await redis.set(cacheKey, JSON.stringify(fileContent, null, 2), { ex: Number(requireEnv("GITHUB_CACHE_TTL")) });
+          await redis.set(cacheKey, JSON.stringify(fileContent, null, 2), { ex: Number(requireEnv("CACHE_TTL_GITHUB")) });
 
           // Utilisation de notre parseur avec décodage Base64 et troncature
           return fileContent

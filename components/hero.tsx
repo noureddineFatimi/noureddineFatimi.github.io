@@ -14,7 +14,7 @@ export function Hero() {
           <div className="space-y-8">
             <div className="space-y-4">
               <div className="inline-block  ">
-                <p className="text-2xl font-medium text-accent " >Hy, I'm
+                <p className="text-2xl font-medium text-accent " >Hi, I'm
                 </p>
               </div>
                 <BlurText

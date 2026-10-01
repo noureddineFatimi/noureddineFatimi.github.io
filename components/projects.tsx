@@ -3,25 +3,52 @@ import { ExternalLink, GitBranch } from 'lucide-react'
 export function Projects() {
   const projects = [
     {
-      title: 'Atracio AI Assistant',
+  title: 'ReKrute Data Platform',
+  description:
+    'Data engineering platform for collecting, validating, cleaning, and processing job offers from ReKrute through an orchestrated and containerized data pipeline.',
+  technologies: [
+    'Python',
+    'Apache Airflow',
+    'Docker Compose',
+    'Playwright',
+    'dbt',
+    'PostgreSQL',
+    'AI',
+  ],
+  highlights: [
+    'Automated job offer scraping with Playwright',
+    'Proxy management for reliable data collection',
+    'Data validation and cleaning pipeline',
+    'AI integration for intelligent data cleaning',
+    'Workflow orchestration with Apache Airflow',
+    'Containerized data pipeline with Docker Compose',
+    'Planned data transformation and analysis with dbt',
+  ],
+  status: 'In Development',
+  link: 'https://github.com/noureddineFatimi/Rekrute-data-platform',
+},
+    {
+      title: 'Personal AI Portfolio',
       description:
-        'Intelligent conversational assistant for ERP systems enabling natural language interaction with business operations through AI-powered tool calling.',
+        'High-performance personal portfolio built with Next.js and TypeScript, featuring an intelligent AI chatbot designed to answer recruiters’ questions about projects, skills, and experience.',
       technologies: [
-        'Spring Boot',
-        'Spring AI',
-        'OpenAI',
+        'Next.js',
+        'TypeScript',
         'React.js',
-        'AI Agents',
-        'JWT',
+        'LangChain',
+        'Upstash Redis',
+        'AI / RAG',
+        'Vercel',
       ],
       highlights: [
-        'Tool Calling mechanism for automated business operations',
-        'Multi-turn conversation management',
-        'Secure tenant isolation',
-        'Real-time API integration',
+        'AI-powered chatbot for recruiter interactions',
+        'Responsive and SEO-optimized interface',
+        'Conversation history and user session management',
+        'Redis caching for optimized response times',
+        'Continuous deployment with Vercel',
       ],
       status: 'Completed',
-      link: "https://github.com/noureddineFatimi/Atracio-Agent-v1"
+      link: 'https://github.com/noureddineFatimi/noureddineFatimi.github.io',
     },
     {
       title: 'Java Job Scraper & Analyzer',
@@ -44,40 +71,28 @@ export function Projects() {
       status: 'Completed',
       link:"https://github.com/noureddineFatimi/Job-Listing-Management-Application"
     },
-    {
-      title: 'Classified Ads Platform (Inspired by Avito.ma)',
-      description:
-        'A web application built with Ruby on Rails, allowing users to post, browse, and filter class.',
-      technologies: ['Ruby on Rails 7', 'SQLite', 'HTML, CSS', 'Active Storage', 'Devise'],
-      highlights: [
-        'Homepage with top categories and latest ads',
-        'Hierarchical categories (parent/child)',
-        'Authentication via sign up / login',
-        'Create, update, and delete ads',
-      ],
-      status: 'Completed',
-      link: "https://github.com/noureddineFatimi/Classified-Ads-Platform"
-    },
-    {
-      title: 'HR Management Dashboard',
-      description:
-        'Interactive dashboard for human resources management with authentication, data visualization, and export capabilities.',
-      technologies: [
-        'React.js',
-        'Material-UI',
-        'Webflow',
-        'React Router',
-        'Axios',
-      ],
-      highlights: [
-        'Responsive design',
-        'Data export to .xlsx',
-        'Real-time data management',
-        'Modern UI components',
-      ],
-      status: 'Completed',
-      link: "https://github.com/noureddineFatimi/HR-Dashboard"
-    },
+  {
+  title: 'Sports Ball Detection & Tracking',
+  description:
+    'Real-time ball detection and tracking system for sports matches using deep learning and computer vision techniques to identify and track the ball in images and videos.',
+  technologies: [
+    'Python',
+    'YOLO',
+    'Deep Learning',
+    'Computer Vision',
+    'Google Colab',
+  ],
+  highlights: [
+    'Real-time ball detection in sports footage',
+    'Ball tracking across images and video frames',
+    'Deep learning-based object detection',
+    'Automatic annotations overlaid on output frames',
+    'Model experimentation and training with Google Colab',
+  ],
+  status: 'Completed',
+  link: 'https://github.com/noureddineFatimi/Football-Tracker',
+},
+  
   ]
 
   const statusColors = {

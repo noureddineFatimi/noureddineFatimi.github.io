@@ -24,7 +24,7 @@ export function Projects() {
     'Containerized data pipeline with Docker Compose',
     'Planned data transformation and analysis with dbt',
   ],
-  status: 'In Development',
+  status: 'Completed',
   link: 'https://github.com/noureddineFatimi/Rekrute-data-platform',
 },
     {

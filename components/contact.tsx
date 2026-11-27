@@ -101,9 +101,11 @@ export function Contact() {
               </p>
               <div className="flex flex-wrap gap-2">
                 {[
-                  'Software Engineering',
-                  'AI Engineering',
-                  'Backend Development',
+                  'Front-End Development',
+                  'AI / IA Integration',
+                  'Dashboard & 3D Visualization',
+                  'PHP & REST APIs',
+                  'Fleet & Logistics Tech',
                   'Cloud Architecture',
                   'Tech Startups',
                 ].map((opp) => (

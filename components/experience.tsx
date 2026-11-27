@@ -3,6 +3,20 @@ import {GitBranch } from "lucide-react"
 export function Experience() {
   const experiences = [
     {
+      company: 'VTC France',
+      position: 'Front-End & AI Developer',
+      period: 'Oct 2026 - Present (Fixed-term contract until Jan 2027)',
+      location: 'Casablanca, Morocco',
+      type: 'CDD - Current Position',
+      highlights: [
+        'Redesign and modernization of a fleet management and logistics tracking platform: built an interactive 3D dashboard (React.js, JavaScript, HTML/CSS, Three.js / React Three Fiber) and improved the overall UI/UX',
+        'Integration of PHP REST APIs, real-time GPS tracking, map-based visualization, and design of fleet and logistics KPIs',
+        'Designed an intelligent dispatch module powered by LLMs through a PHP API, providing multi-criteria driver assignment and recommendations',
+        'Adopted an AI-agent-assisted development workflow (Codex): prompt engineering, technical specifications in Markdown, code generation and refactoring',
+      ],
+      links: [],
+    },
+    {
       company: 'Oritech',
       position: 'Software Engineer – AI & Spring Boot',
       period: 'Feb 2026 - Jul 2026 (6 months)',

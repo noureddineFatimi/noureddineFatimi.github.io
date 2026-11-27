@@ -6,7 +6,7 @@ export function Skills() {
         'LLM Applications',
         'Prompt Engineering',
         'Tool Calling',
-        'AI Agents',
+        'AI Agents (Codex)',
         'NLP Models',
         'Hugging Face',
         'OpenAI Integration',
@@ -34,6 +34,7 @@ export function Skills() {
         'TypeScript',
         'Tailwind CSS',
         'Responsive Design',
+        'Three.js / R3F',
       ],
     },
     {
